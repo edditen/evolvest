@@ -5,6 +5,12 @@ import (
 	"fmt"
 )
 
+const (
+	ERR = -(1 + iota)
+	SET
+	DEL
+)
+
 type Command interface {
 	// Set new value, return old value if existed
 	Set(key string, val string) (oldVal string, exist bool)
@@ -22,6 +28,12 @@ type Evolvest struct {
 	Nodes map[string]string `json:"nodes"`
 }
 
+var evolvest *Evolvest
+
+func init() {
+	evolvest = NewEvolvest()
+}
+
 func NewEvolvest() *Evolvest {
 	return &Evolvest{Nodes: make(map[string]string, 17)}
 }
@@ -29,9 +41,15 @@ func NewEvolvest() *Evolvest {
 func (e *Evolvest) Set(key string, val string) (oldVal string, exist bool) {
 	oldVal, ok := e.Nodes[key]
 	e.Nodes[key] = val
+
+	defer func() {
+		watcher.Notify(SET, key, oldVal, val)
+	}()
+
 	if ok {
 		return oldVal, true
 	}
+
 	return "", false
 }
 
@@ -44,7 +62,9 @@ func (e *Evolvest) Get(key string) (val string, err error) {
 
 func (e *Evolvest) Del(key string) (val string, err error) {
 	if val, ok := e.Nodes[key]; ok {
+
 		delete(e.Nodes, key)
+		watcher.Notify(DEL, key, val, "")
 		return val, nil
 	}
 	return "", fmt.Errorf("key %s not exists", key)
