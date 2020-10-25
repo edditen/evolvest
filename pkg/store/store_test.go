@@ -1,13 +1,14 @@
 package store
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
 
 func TestEvolvest_Del(t *testing.T) {
 	type fields struct {
-		storage map[string]string
+		Nodes map[string]string
 	}
 	type args struct {
 		key string
@@ -22,7 +23,7 @@ func TestEvolvest_Del(t *testing.T) {
 		{
 			name: "key exits",
 			fields: fields{
-				storage: map[string]string{
+				Nodes: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -35,7 +36,7 @@ func TestEvolvest_Del(t *testing.T) {
 		{
 			name: "key not exits",
 			fields: fields{
-				storage: map[string]string{
+				Nodes: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -50,7 +51,7 @@ func TestEvolvest_Del(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Log(tt.name)
 			e := &Evolvest{
-				storage: tt.fields.storage,
+				Nodes: tt.fields.Nodes,
 			}
 			gotVal, err := e.Del(tt.args.key)
 			if (err != nil) != tt.wantErr {
@@ -66,7 +67,7 @@ func TestEvolvest_Del(t *testing.T) {
 
 func TestEvolvest_Get(t *testing.T) {
 	type fields struct {
-		storage map[string]string
+		Nodes map[string]string
 	}
 	type args struct {
 		key string
@@ -81,7 +82,7 @@ func TestEvolvest_Get(t *testing.T) {
 		{
 			name: "key exits",
 			fields: fields{
-				storage: map[string]string{
+				Nodes: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -94,7 +95,7 @@ func TestEvolvest_Get(t *testing.T) {
 		{
 			name: "key not exits",
 			fields: fields{
-				storage: map[string]string{
+				Nodes: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -109,7 +110,7 @@ func TestEvolvest_Get(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Log(tt.name)
 			e := &Evolvest{
-				storage: tt.fields.storage,
+				Nodes: tt.fields.Nodes,
 			}
 			gotVal, err := e.Get(tt.args.key)
 			if (err != nil) != tt.wantErr {
@@ -125,7 +126,7 @@ func TestEvolvest_Get(t *testing.T) {
 
 func TestEvolvest_Set(t *testing.T) {
 	type fields struct {
-		storage map[string]string
+		Nodes map[string]string
 	}
 	type args struct {
 		key string
@@ -141,7 +142,7 @@ func TestEvolvest_Set(t *testing.T) {
 		{
 			name: "key exit",
 			fields: fields{
-				storage: map[string]string{
+				Nodes: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -155,7 +156,7 @@ func TestEvolvest_Set(t *testing.T) {
 		{
 			name: "key not exit",
 			fields: fields{
-				storage: map[string]string{
+				Nodes: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -171,7 +172,7 @@ func TestEvolvest_Set(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Log(tt.name)
 			e := &Evolvest{
-				storage: tt.fields.storage,
+				Nodes: tt.fields.Nodes,
 			}
 			gotOldVal, goExist := e.Set(tt.args.key, tt.args.val)
 			if goExist != tt.wantExist {
@@ -192,7 +193,7 @@ func TestNewEvolvest(t *testing.T) {
 	}{
 		{
 			name: "normal",
-			want: &Evolvest{storage: make(map[string]string, 17)},
+			want: &Evolvest{Nodes: make(map[string]string, 17)},
 		},
 	}
 	for _, tt := range tests {
@@ -201,6 +202,128 @@ func TestNewEvolvest(t *testing.T) {
 			if got := NewEvolvest(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewEvolvest() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func TestEvolvest_Save(t *testing.T) {
+	type fields struct {
+		Nodes map[string]string
+	}
+	tests := []struct {
+		name     string
+		fields   fields
+		wantData []byte
+		wantErr  bool
+	}{
+		{
+			name: "nil",
+			fields: fields{
+				Nodes: nil,
+			},
+			wantData: []byte(`{"nodes":null}`),
+			wantErr:  false,
+		},
+		{
+			name: "empty",
+			fields: fields{
+				Nodes: map[string]string{},
+			},
+			wantData: []byte(`{"nodes":{}}`),
+			wantErr:  false,
+		},
+		{
+			name: "have values",
+			fields: fields{
+				Nodes: map[string]string{
+					"hello": "world",
+				},
+			},
+			wantData: []byte(`{"nodes":{"hello":"world"}}`),
+			wantErr:  false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Log(tt.name)
+			e := &Evolvest{
+				Nodes: tt.fields.Nodes,
+			}
+			gotData, err := e.Save()
+			fmt.Printf("gotData: %s\n", string(gotData))
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Save() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotData, tt.wantData) {
+				t.Errorf("Save() gotData = %v, want %v", gotData, tt.wantData)
+			}
+		})
+	}
+}
+
+func TestEvolvest_Load(t *testing.T) {
+	type fields struct {
+		Nodes map[string]string
+	}
+	type args struct {
+		data []byte
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "nil",
+			fields: fields{
+				Nodes: map[string]string{
+					"abc": "123",
+				},
+			},
+			args: args{
+				data: nil,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty",
+			fields: fields{
+				Nodes: map[string]string{
+					"abc": "123",
+				},
+			},
+			args: args{
+				data: []byte("{}"),
+			},
+			wantErr: false,
+		},
+		{
+			name: "not empty",
+			fields: fields{
+				Nodes: map[string]string{
+					"abc":   "123",
+					"hello": "456",
+				},
+			},
+			args: args{
+				data: []byte(`{"Nodes":{"hello":"world"}}`),
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Log(tt.name)
+			e := &Evolvest{
+				Nodes: tt.fields.Nodes,
+			}
+			if err := e.Load(tt.args.data); (err != nil) != tt.wantErr {
+				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			d, err := e.Save()
+			fmt.Printf("data:%s, err:%v\n", string(d), err)
 		})
 	}
 }
