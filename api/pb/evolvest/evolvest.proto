@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package evolvest;
+
+option go_package = ".;evolvest";
+
+message GetRequest {
+  string key = 1;
+}
+
+message GetResponse{
+  bool ok = 1;
+  string key = 2;
+  string val = 3;
+  string errMsg = 4;
+}
+
+message SetRequest {
+  string key = 1;
+  string val = 2;
+}
+
+message SetResponse{
+  bool ok = 1;
+  string key = 2;
+  string oldVal = 3;
+  string newVal = 4;
+  string errMsg = 5;
+}
+
+message DelRequest {
+  string key = 1;
+}
+
+message DelResponse{
+  bool ok = 1;
+  string key = 2;
+  string oldVal = 3;
+  string errMsg = 4;
+}
+
+service EvolvestService {
+  rpc Get(GetRequest) returns (GetResponse){}
+  rpc Set(SetRequest) returns (SetResponse){}
+  rpc Del(DelRequest) returns (DelResponse){}
+}

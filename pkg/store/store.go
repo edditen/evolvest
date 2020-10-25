@@ -11,7 +11,7 @@ const (
 	DEL
 )
 
-type Command interface {
+type Store interface {
 	// Set new value, return old value if existed
 	Set(key string, val string) (oldVal string, exist bool)
 	// Get value of key
@@ -34,6 +34,10 @@ func init() {
 	evolvest = NewEvolvest()
 }
 
+func GetEvolvest() *Evolvest {
+	return evolvest
+}
+
 func NewEvolvest() *Evolvest {
 	return &Evolvest{Nodes: make(map[string]string, 17)}
 }
@@ -43,7 +47,7 @@ func (e *Evolvest) Set(key string, val string) (oldVal string, exist bool) {
 	e.Nodes[key] = val
 
 	defer func() {
-		watcher.Notify(SET, key, oldVal, val)
+		GetWatcher().Notify(SET, key, oldVal, val)
 	}()
 
 	if ok {
@@ -64,7 +68,7 @@ func (e *Evolvest) Del(key string) (val string, err error) {
 	if val, ok := e.Nodes[key]; ok {
 
 		delete(e.Nodes, key)
-		watcher.Notify(DEL, key, val, "")
+		GetWatcher().Notify(DEL, key, val, "")
 		return val, nil
 	}
 	return "", fmt.Errorf("key %s not exists", key)

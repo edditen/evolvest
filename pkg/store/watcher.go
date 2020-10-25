@@ -19,6 +19,10 @@ func init() {
 	watcher = NewWatcher()
 }
 
+func GetWatcher() *Watcher {
+	return watcher
+}
+
 func NewWatcher() *Watcher {
 	return &Watcher{
 		chMap: make(map[string][]chan Notification),
