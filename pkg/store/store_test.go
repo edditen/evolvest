@@ -7,7 +7,7 @@ import (
 
 func TestEvolvest_Del(t *testing.T) {
 	type fields struct {
-		storage map[string]interface{}
+		storage map[string]string
 	}
 	type args struct {
 		key string
@@ -16,13 +16,13 @@ func TestEvolvest_Del(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		wantVal interface{}
+		wantVal string
 		wantErr bool
 	}{
 		{
 			name: "key exits",
 			fields: fields{
-				storage: map[string]interface{}{
+				storage: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -35,19 +35,20 @@ func TestEvolvest_Del(t *testing.T) {
 		{
 			name: "key not exits",
 			fields: fields{
-				storage: map[string]interface{}{
+				storage: map[string]string{
 					"hello": "world",
 				},
 			},
 			args: args{
 				key: "hello123",
 			},
-			wantVal: nil,
-			wantErr: false,
+			wantVal: "",
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Log(tt.name)
 			e := &Evolvest{
 				storage: tt.fields.storage,
 			}
@@ -65,7 +66,7 @@ func TestEvolvest_Del(t *testing.T) {
 
 func TestEvolvest_Get(t *testing.T) {
 	type fields struct {
-		storage map[string]interface{}
+		storage map[string]string
 	}
 	type args struct {
 		key string
@@ -74,13 +75,13 @@ func TestEvolvest_Get(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		wantVal interface{}
+		wantVal string
 		wantErr bool
 	}{
 		{
 			name: "key exits",
 			fields: fields{
-				storage: map[string]interface{}{
+				storage: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -93,19 +94,20 @@ func TestEvolvest_Get(t *testing.T) {
 		{
 			name: "key not exits",
 			fields: fields{
-				storage: map[string]interface{}{
+				storage: map[string]string{
 					"hello": "world",
 				},
 			},
 			args: args{
 				key: "hello123",
 			},
-			wantVal: nil,
+			wantVal: "",
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Log(tt.name)
 			e := &Evolvest{
 				storage: tt.fields.storage,
 			}
@@ -123,23 +125,23 @@ func TestEvolvest_Get(t *testing.T) {
 
 func TestEvolvest_Set(t *testing.T) {
 	type fields struct {
-		storage map[string]interface{}
+		storage map[string]string
 	}
 	type args struct {
 		key string
-		val interface{}
+		val string
 	}
 	tests := []struct {
 		name       string
 		fields     fields
 		args       args
-		wantOldVal interface{}
-		wantErr    bool
+		wantOldVal string
+		wantExist  bool
 	}{
 		{
 			name: "key exit",
 			fields: fields{
-				storage: map[string]interface{}{
+				storage: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -148,12 +150,12 @@ func TestEvolvest_Set(t *testing.T) {
 				val: "123",
 			},
 			wantOldVal: "world",
-			wantErr:    false,
+			wantExist:  true,
 		},
 		{
 			name: "key not exit",
 			fields: fields{
-				storage: map[string]interface{}{
+				storage: map[string]string{
 					"hello": "world",
 				},
 			},
@@ -161,18 +163,19 @@ func TestEvolvest_Set(t *testing.T) {
 				key: "hello123",
 				val: "123",
 			},
-			wantOldVal: nil,
-			wantErr:    false,
+			wantOldVal: "",
+			wantExist:  false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Log(tt.name)
 			e := &Evolvest{
 				storage: tt.fields.storage,
 			}
-			gotOldVal, err := e.Set(tt.args.key, tt.args.val)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Set() error = %v, wantErr %v", err, tt.wantErr)
+			gotOldVal, goExist := e.Set(tt.args.key, tt.args.val)
+			if goExist != tt.wantExist {
+				t.Errorf("Set() exit = %v, wantExist %v", goExist, tt.wantExist)
 				return
 			}
 			if !reflect.DeepEqual(gotOldVal, tt.wantOldVal) {
@@ -189,11 +192,12 @@ func TestNewEvolvest(t *testing.T) {
 	}{
 		{
 			name: "normal",
-			want: &Evolvest{storage: make(map[string]interface{}, 17)},
+			want: &Evolvest{storage: make(map[string]string, 17)},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Log(tt.name)
 			if got := NewEvolvest(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewEvolvest() = %v, want %v", got, tt.want)
 			}
