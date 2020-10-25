@@ -9,10 +9,8 @@ message GetRequest {
 }
 
 message GetResponse{
-  bool ok = 1;
-  string key = 2;
-  string val = 3;
-  string errMsg = 4;
+  string key = 1;
+  string val = 2;
 }
 
 message SetRequest {
@@ -21,11 +19,10 @@ message SetRequest {
 }
 
 message SetResponse{
-  bool ok = 1;
-  string key = 2;
+  string key = 1;
+  bool existVal = 2;
   string oldVal = 3;
   string newVal = 4;
-  string errMsg = 5;
 }
 
 message DelRequest {
@@ -33,10 +30,8 @@ message DelRequest {
 }
 
 message DelResponse{
-  bool ok = 1;
-  string key = 2;
-  string oldVal = 3;
-  string errMsg = 4;
+  string key = 1;
+  string val = 2;
 }
 
 service EvolvestService {
