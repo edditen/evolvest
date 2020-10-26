@@ -111,17 +111,18 @@ func TestWatcher_Notify(t *testing.T) {
 
 func TestWatcher(t *testing.T) {
 	t.Run("watcher", func(t *testing.T) {
-		watcher.Add("hello", listenChange)
-		watcher.Add("hello", listenChange)
-		evolvest.Set("hello", "world")
 
-		watcher.Add("hello", listenChange)
-		evolvest.Set("hello", "newWorld")
+		GetWatcher().Add("hello", listenChange)
+		GetWatcher().Add("hello", listenChange)
+		GetStore().Set("hello", "world")
 
-		watcher.Add("hello", listenChange)
-		evolvest.Del("hello")
-		watcher.Add("hello", listenChange)
-		evolvest.Del("hello")
+		GetWatcher().Add("hello", listenChange)
+		GetStore().Set("hello", "newWorld")
+
+		GetWatcher().Add("hello", listenChange)
+		GetStore().Del("hello")
+		GetWatcher().Add("hello", listenChange)
+		GetStore().Del("hello")
 
 	})
 }

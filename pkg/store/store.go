@@ -28,14 +28,14 @@ type Evolvest struct {
 	Nodes map[string]string `json:"nodes"`
 }
 
-var evolvest *Evolvest
+var store Store
 
 func init() {
-	evolvest = NewEvolvest()
+	store = NewEvolvest()
 }
 
-func GetEvolvest() *Evolvest {
-	return evolvest
+func GetStore() Store {
+	return store
 }
 
 func NewEvolvest() *Evolvest {
@@ -47,7 +47,7 @@ func (e *Evolvest) Set(key string, val string) (oldVal string, exist bool) {
 	e.Nodes[key] = val
 
 	defer func() {
-		GetWatcher().Notify(SET, key, oldVal, val)
+		_ = GetWatcher().Notify(SET, key, oldVal, val)
 	}()
 
 	if ok {
@@ -68,7 +68,7 @@ func (e *Evolvest) Del(key string) (val string, err error) {
 	if val, ok := e.Nodes[key]; ok {
 
 		delete(e.Nodes, key)
-		GetWatcher().Notify(DEL, key, val, "")
+		_ = GetWatcher().Notify(DEL, key, val, "")
 		return val, nil
 	}
 	return "", fmt.Errorf("key %s not exists", key)

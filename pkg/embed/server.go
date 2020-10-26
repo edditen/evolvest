@@ -21,10 +21,13 @@ func GetEvolvestServer() *EvolvestServer {
 }
 
 type EvolvestServer struct {
+	store store.Store
 }
 
 func NewEvolvestServer() *EvolvestServer {
-	return &EvolvestServer{}
+	return &EvolvestServer{
+		store: store.GetStore(),
+	}
 }
 
 func StartServer(port string) {
@@ -42,7 +45,7 @@ func StartServer(port string) {
 }
 
 func (e *EvolvestServer) Get(ctx context.Context, request *evolvest.GetRequest) (*evolvest.GetResponse, error) {
-	val, err := store.GetEvolvest().Get(request.GetKey())
+	val, err := e.store.Get(request.GetKey())
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +56,7 @@ func (e *EvolvestServer) Get(ctx context.Context, request *evolvest.GetRequest) 
 }
 
 func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) (*evolvest.SetResponse, error) {
-	oldVal, exists := store.GetEvolvest().Set(request.GetKey(), request.GetVal())
+	oldVal, exists := e.store.Set(request.GetKey(), request.GetVal())
 	if exists {
 		return &evolvest.SetResponse{
 			Key:      request.GetKey(),
@@ -70,7 +73,7 @@ func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) 
 }
 
 func (e *EvolvestServer) Del(ctx context.Context, request *evolvest.DelRequest) (*evolvest.DelResponse, error) {
-	oldVal, err := store.GetEvolvest().Del(request.GetKey())
+	oldVal, err := e.store.Del(request.GetKey())
 	if err != nil {
 		return nil, err
 	}

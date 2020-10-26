@@ -42,7 +42,7 @@ func (e *EvolvestClient) Get(ctx context.Context, key string) (val string, err e
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	resp, err := e.client.Get(ctx, req)
-	log.Printf("response: %v\n", resp)
+	log.Printf("get response: %v\n", resp)
 	if err != nil {
 		return "", err
 	}
@@ -51,12 +51,12 @@ func (e *EvolvestClient) Get(ctx context.Context, key string) (val string, err e
 }
 
 func (e *EvolvestClient) Set(ctx context.Context, key, val string) (err error) {
-	req := &evolvest.SetRequest{Key: key}
+	req := &evolvest.SetRequest{Key: key, Val: val}
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	resp, err := e.client.Set(ctx, req)
-	log.Printf("response: %v\n", resp)
+	log.Printf("set response: %v\n", resp)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (e *EvolvestClient) Del(ctx context.Context, key string) (err error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	resp, err := e.client.Del(ctx, req)
-	log.Printf("response: %v\n", resp)
+	log.Printf("del response: %v\n", resp)
 	if err != nil {
 		return err
 	}
