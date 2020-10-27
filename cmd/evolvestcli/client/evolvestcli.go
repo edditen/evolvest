@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
 	"google.golang.org/grpc"
 	"log"
@@ -28,9 +29,10 @@ func NewEvolvestClient() *EvolvestClient {
 }
 
 func StartClient(port string) {
-	conn, err := grpc.Dial(port, grpc.WithInsecure(), grpc.WithBlock())
+	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	conn, err := grpc.DialContext(ctx, port, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln(fmt.Sprintf("connect to %s failed, ", port), err)
 	}
 	//evolvestClient.conn = conn
 	evolvestClient.client = evolvest.NewEvolvestServiceClient(conn)
