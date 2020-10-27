@@ -20,7 +20,7 @@ func Execute() {
 
 func newServer() *cobra.Command {
 	serverCmd := &cobra.Command{
-		Use:   "serve",
+		Use:   "start",
 		Short: "Start an evolvestd ",
 		RunE:  startServer,
 	}

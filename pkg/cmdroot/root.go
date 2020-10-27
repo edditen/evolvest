@@ -6,14 +6,14 @@ import (
 
 const (
 	CConfig    = "config"
-	CShow      = "show-config-only"
-	CEnableEnv = "enable-env-variable"
+	CPrint     = "print-config"
+	CEnableEnv = "enable-env"
 )
 
 var (
 	// command flag
 	CmdConfig    string
-	CmdShow      bool
+	CmdPrint     bool
 	cmdEnableEnv bool
 )
 
@@ -31,7 +31,7 @@ func getRootCommand() *cobra.Command {
 	// root help function
 	root.RunE = func(cmd *cobra.Command, args []string) error {
 		// show config
-		if CmdShow {
+		if CmdPrint {
 			return printConfigs(cmd)
 		}
 		// show version
@@ -41,8 +41,8 @@ func getRootCommand() *cobra.Command {
 
 	pFlags := root.PersistentFlags()
 	// only get form command line
-	pFlags.StringVar(&CmdConfig, CConfig, "./conf/config.yaml", `config file.")`)
-	pFlags.BoolVarP(&CmdShow, CShow, "S", false, "Prints configs and exits")
-	pFlags.BoolVar(&cmdEnableEnv, CEnableEnv, false, "enable config from env")
+	pFlags.StringVarP(&CmdConfig, CConfig, "c", "./conf/config.yaml", `Config file.")`)
+	pFlags.BoolVarP(&CmdPrint, CPrint, "p", false, "Prints configs and exits")
+	pFlags.BoolVarP(&cmdEnableEnv, CEnableEnv, "e", false, "Enable config from env")
 	return root
 }
