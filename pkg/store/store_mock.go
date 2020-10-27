@@ -78,9 +78,9 @@ func (mr *MockStoreMockRecorder) Del(key interface{}) *gomock.Call {
 }
 
 // Save mocks base method
-func (m *MockStore) Save() ([]byte, error) {
+func (m *MockStore) Serialize() ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save")
+	ret := m.ctrl.Call(m, "Serialize")
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -89,7 +89,7 @@ func (m *MockStore) Save() ([]byte, error) {
 // Save indicates an expected call of Save
 func (mr *MockStoreMockRecorder) Save() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockStore)(nil).Save))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Serialize", reflect.TypeOf((*MockStore)(nil).Serialize))
 }
 
 // Load mocks base method

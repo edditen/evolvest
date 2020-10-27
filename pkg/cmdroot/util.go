@@ -17,7 +17,7 @@ func isUserError(err error) bool {
 }
 
 // WaitSignal block until os.Interrupt, os.Kill, syscall.SIGTERM
-func WaitSignal() {
+func WaitSignal(fn func()) {
 	sigChannel := make(chan os.Signal, 1)
 	signal.Notify(sigChannel, os.Interrupt, os.Kill, syscall.SIGTERM)
 	for {
@@ -27,6 +27,7 @@ func WaitSignal() {
 			stop = true
 		}
 		if stop {
+			fn()
 			break
 		}
 	}

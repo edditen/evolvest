@@ -4,6 +4,7 @@ import (
 	"github.com/EdgarTeng/evolvest/embed/rpc"
 	"github.com/EdgarTeng/evolvest/pkg/cmdroot"
 	"github.com/EdgarTeng/evolvest/pkg/common/config"
+	"github.com/EdgarTeng/evolvest/pkg/store"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -31,6 +32,7 @@ func newServer() *cobra.Command {
 func initBeforeStart() {
 	initConfig()
 	initGrpc()
+	store.Recover()
 }
 
 func initGrpc() {
@@ -51,8 +53,8 @@ func startServer(cmd *cobra.Command, args []string) error {
 
 	cmd.Println("Server started!")
 
-	cmdroot.WaitSignal()
-	cmd.Println("Server stopping ...")
+	cmdroot.WaitSignal(store.Persistent)
+	cmd.Println("Bye!")
 
 	return nil
 }

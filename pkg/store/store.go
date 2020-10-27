@@ -3,6 +3,11 @@ package store
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/EdgarTeng/evolvest/pkg/common"
+	"github.com/EdgarTeng/evolvest/pkg/common/config"
+	"io/ioutil"
+	"log"
+	"path"
 )
 
 const (
@@ -18,9 +23,9 @@ type Store interface {
 	Get(key string) (val string, err error)
 	// Del value of key, and return value
 	Del(key string) (val string, err error)
-	// Save current data
-	Save() (data []byte, err error)
-	// Load data to current state
+	// Serialize current data
+	Serialize() (data []byte, err error)
+	// Deserialize data to current state
 	Load(data []byte) (err error)
 }
 
@@ -74,7 +79,7 @@ func (e *Evolvest) Del(key string) (val string, err error) {
 	return "", fmt.Errorf("key %s not exists", key)
 }
 
-func (e *Evolvest) Save() (data []byte, err error) {
+func (e *Evolvest) Serialize() (data []byte, err error) {
 	data, err = json.Marshal(e)
 	return
 }
@@ -82,4 +87,35 @@ func (e *Evolvest) Save() (data []byte, err error) {
 func (e *Evolvest) Load(data []byte) (err error) {
 	err = json.Unmarshal(data, e)
 	return
+}
+
+func Persistent() {
+	data, err := GetStore().Serialize()
+	if err != nil {
+		log.Printf("save data error, %v\n", err)
+		return
+	}
+	filename := path.Join(config.Config().DataDir, common.SnapshotFile)
+	err = ioutil.WriteFile(filename, data, 0644)
+	if err != nil {
+		log.Printf("write data to file error, %v\n", err)
+		return
+	}
+	log.Println("write snapshot success!")
+}
+
+func Recover() {
+	filename := path.Join(config.Config().DataDir, common.SnapshotFile)
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Printf("read data from file error, %v\n", err)
+		return
+	}
+	err = GetStore().Load(data)
+	if err != nil {
+		log.Printf("load data to store error, %v\n", err)
+		return
+	}
+
+	log.Println("recover data from snapshot success!")
 }

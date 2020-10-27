@@ -249,14 +249,14 @@ func TestEvolvest_Save(t *testing.T) {
 			e := &Evolvest{
 				Nodes: tt.fields.Nodes,
 			}
-			gotData, err := e.Save()
+			gotData, err := e.Serialize()
 			fmt.Printf("gotData: %s\n", string(gotData))
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Save() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Serialize() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotData, tt.wantData) {
-				t.Errorf("Save() gotData = %v, want %v", gotData, tt.wantData)
+				t.Errorf("Serialize() gotData = %v, want %v", gotData, tt.wantData)
 			}
 		})
 	}
@@ -322,7 +322,7 @@ func TestEvolvest_Load(t *testing.T) {
 			if err := e.Load(tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			d, err := e.Save()
+			d, err := e.Serialize()
 			fmt.Printf("data:%s, err:%v\n", string(d), err)
 		})
 	}
