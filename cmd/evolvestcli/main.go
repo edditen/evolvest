@@ -1,15 +1,19 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/EdgarTeng/evolvest/cmd/evolvestcli/client"
 	ecli "github.com/EdgarTeng/evolvest/cmd/evolvestcli/completer"
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
+	"log"
 )
 
 func main() {
-	startRpc()
+	addr := parseArgs()
+
+	startRpc(addr)
 
 	c := ecli.NewCompleter()
 	fmt.Printf("evolve-prompt\n")
@@ -26,7 +30,14 @@ func main() {
 	p.Run()
 }
 
-func startRpc() {
-	port := "127.0.0.1:8762"
-	client.StartClient(port)
+func parseArgs() (addr string) {
+	flag.StringVar(&addr, "a", "127.0.0.1:8762", "address")
+	flag.Parse()
+	return
+}
+
+func startRpc(addr string) {
+	if err := client.StartClient(addr); err != nil {
+		log.Fatalf("connect '%s' error, %v\n", addr, err)
+	}
 }

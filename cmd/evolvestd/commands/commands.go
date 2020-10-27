@@ -29,22 +29,18 @@ func newServer() *cobra.Command {
 }
 
 func initBeforeStart() {
-
-	// init config
 	initConfig()
-
 	initGrpc()
-
-	return
 }
 
 func initGrpc() {
-	go rpc.StartServer(":" + config.Config().ServerPort)
+	if err := rpc.StartServer(":" + config.Config().ServerPort); err != nil {
+		log.Fatalf("init grpc server failed, %v\n", err)
+	}
 
 }
 
 func initConfig() {
-	// load config
 	if err := config.InitConfig(cmdroot.CmdConfig); err != nil {
 		log.Fatalf("init config failed, %v\n", err)
 	}
@@ -53,7 +49,7 @@ func initConfig() {
 func startServer(cmd *cobra.Command, args []string) error {
 	initBeforeStart()
 
-	cmd.Println("Server starting ...")
+	cmd.Println("Server started!")
 
 	cmdroot.WaitSignal()
 	cmd.Println("Server stopping ...")

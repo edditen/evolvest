@@ -38,4 +38,5 @@ func loadFromFile(configFile string) (cfg *Conf, err error) {
 type Conf struct {
 	ServerPort   string `json:"server_port"`
 	WebAdminPort string `json:"web_admin_port"`
+	DataDir      string `json:"data_dir"`
 }

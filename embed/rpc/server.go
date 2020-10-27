@@ -30,18 +30,21 @@ func NewEvolvestServer() *EvolvestServer {
 	}
 }
 
-func StartServer(port string) {
+func StartServer(port string) error {
 
 	log.Printf("Server running, on listen %s", port)
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
-		log.Fatalf("Server start failed, %v!\n", err)
+		return err
 	}
 
 	srv := grpc.NewServer()
 	evolvest.RegisterEvolvestServiceServer(srv, GetEvolvestServer())
 
-	log.Fatalln(srv.Serve(lis))
+	go func() {
+		log.Fatalln(srv.Serve(lis))
+	}()
+	return nil
 }
 
 func (e *EvolvestServer) Get(ctx context.Context, request *evolvest.GetRequest) (*evolvest.GetResponse, error) {
