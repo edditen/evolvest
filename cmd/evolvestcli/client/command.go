@@ -14,7 +14,7 @@ const (
 	CmdDel = "del"
 )
 
-var commands = []string{CmdGet + " ", CmdSet + " ", CmdDel + " "}
+var commands = []string{CmdGet, CmdSet, CmdDel}
 
 type Command interface {
 	Execute(args ...string) (string, error)
@@ -41,34 +41,35 @@ func NewCommand(cmd string) (Command, error) {
 
 func ParseCommand(line string) (func(), error) {
 	worlds := strings.Fields(line)
+	cmd := worlds[0]
 
-	switch {
-	case hasPrefixes(line, commands...):
-		cmd, err := NewCommand(worlds[0])
+	if contains(commands, cmd) {
+		c, err := NewCommand(worlds[0])
 		if err != nil {
 			return nil, err
 		}
 		return func() {
-			rest, err := cmd.Execute(worlds[1:]...)
-			if err != nil {
+
+			if ret, err := c.Execute(worlds[1:]...); err != nil {
 				fmt.Printf("err: %s\n", err.Error())
 				return
+			} else {
+				fmt.Println(ret)
 			}
-			fmt.Println(rest)
 		}, nil
-	case worlds[0] == "exit" || worlds[0] == "quit":
+	} else if contains([]string{"exit", "quit"}, cmd) {
 		return func() {
 			fmt.Println("Bye!")
 			os.Exit(1)
 		}, nil
 	}
 
-	return nil, fmt.Errorf("command '%s' cant not be executed", line)
+	return nil, fmt.Errorf("command '%s' is not supported", cmd)
 }
 
-func hasPrefixes(s string, prefixes ...string) bool {
-	for _, prefix := range prefixes {
-		if strings.HasPrefix(s, prefix) {
+func contains(array []string, e string) bool {
+	for _, item := range array {
+		if item == e {
 			return true
 		}
 	}
