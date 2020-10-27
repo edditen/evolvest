@@ -2,8 +2,8 @@ package completer
 
 import (
 	"fmt"
+	"github.com/EdgarTeng/evolvest/cmd/evolvestcli/client"
 	"github.com/c-bata/go-prompt"
-	"os"
 	"strings"
 )
 
@@ -28,12 +28,12 @@ func Executor(s string) {
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return
-	} else if s == "quit" || s == "exit" {
-		fmt.Println("Bye!")
-		os.Exit(0)
+	}
+	fn, err := client.ParseCommand(s)
+	if err != nil {
+		fmt.Printf("error: %s\n", err.Error())
 		return
 	}
-
-	fmt.Println("executing: ", s)
+	fn()
 	return
 }
