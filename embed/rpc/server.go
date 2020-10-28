@@ -31,7 +31,7 @@ func NewEvolvestServer() *EvolvestServer {
 
 func StartServer(port string) error {
 
-	log.Printf("Server running, on listen %s", port)
+	log.Printf("Server running, on listen %s\n", port)
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		return err
