@@ -7,6 +7,7 @@ import (
 	"github.com/EdgarTeng/evolvest/pkg/common/config"
 	"io/ioutil"
 	"log"
+	"os"
 	"path"
 )
 
@@ -95,7 +96,13 @@ func Persistent() {
 		log.Printf("save data error, %v\n", err)
 		return
 	}
-	filename := path.Join(config.Config().DataDir, common.SnapshotFile)
+
+	dataDir := config.Config().DataDir
+	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
+		log.Printf("mkdir error, %v\n", err)
+	}
+
+	filename := path.Join(dataDir, common.SnapshotFile)
 	err = ioutil.WriteFile(filename, data, 0644)
 	if err != nil {
 		log.Printf("write data to file error, %v\n", err)
