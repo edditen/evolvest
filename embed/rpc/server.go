@@ -3,9 +3,9 @@ package rpc
 import (
 	"context"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
+	"github.com/EdgarTeng/evolvest/pkg/common/log"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"google.golang.org/grpc"
-	"log"
 	"net"
 )
 
@@ -31,7 +31,6 @@ func NewEvolvestServer() *EvolvestServer {
 
 func StartServer(port string) error {
 
-	log.Printf("Server running, on listen %s\n", port)
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		return err
@@ -41,7 +40,7 @@ func StartServer(port string) error {
 	evolvest.RegisterEvolvestServiceServer(srv, GetEvolvestServer())
 
 	go func() {
-		log.Fatalln(srv.Serve(lis))
+		log.Fatal("%v", srv.Serve(lis))
 	}()
 	return nil
 }

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"github.com/ghodss/yaml"
 	"io/ioutil"
 )
@@ -33,6 +34,14 @@ func loadFromFile(configFile string) (cfg *Conf, err error) {
 	}
 
 	return
+}
+
+func PrintConfig() (string, error) {
+	cfg, err := json.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+	return string(cfg), nil
 }
 
 type Conf struct {

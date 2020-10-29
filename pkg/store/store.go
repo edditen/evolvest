@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/common/config"
+	"github.com/EdgarTeng/evolvest/pkg/common/log"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 )
@@ -93,36 +93,36 @@ func (e *Evolvest) Load(data []byte) (err error) {
 func Persistent() {
 	data, err := GetStore().Serialize()
 	if err != nil {
-		log.Printf("save data error, %v\n", err)
+		log.Warn("save data error, %v", err)
 		return
 	}
 
 	dataDir := config.Config().DataDir
 	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
-		log.Printf("mkdir error, %v\n", err)
+		log.Warn("mkdir error, %v", err)
 	}
 
 	filename := path.Join(dataDir, common.SnapshotFile)
 	err = ioutil.WriteFile(filename, data, 0644)
 	if err != nil {
-		log.Printf("write data to file error, %v\n", err)
+		log.Warn("write data to file error, %v", err)
 		return
 	}
-	log.Println("write snapshot success!")
+	log.Info("write snapshot success!")
 }
 
 func Recover() {
 	filename := path.Join(config.Config().DataDir, common.SnapshotFile)
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		log.Printf("read data from file error, %v\n", err)
+		log.Warn("read data from file error, %v", err)
 		return
 	}
 	err = GetStore().Load(data)
 	if err != nil {
-		log.Printf("load data to store error, %v\n", err)
+		log.Warn("load data to store error, %v", err)
 		return
 	}
 
-	log.Println("recover data from snapshot success!")
+	log.Info("recover data from snapshot success!")
 }
