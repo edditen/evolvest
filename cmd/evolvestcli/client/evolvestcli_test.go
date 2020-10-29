@@ -6,6 +6,9 @@ import (
 )
 
 func TestEvolvestClient(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
 	t.Run("client", func(t *testing.T) {
 		port := ":8762"
 		StartClient(port)

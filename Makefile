@@ -37,7 +37,7 @@ fmt:
 
 .PHONY: test
 test:
-	go test -v ./...
+	go test -short -v ./...
 
 .PHONY: gen-pb
 gen-pb:
