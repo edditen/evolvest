@@ -41,7 +41,7 @@ func prepare() {
 
 	// init grpc
 	port := ":" + config.Config().ServerPort
-	logger.Info("Server running, on listen %s\n", port)
+	logger.Info("Server running, on listen %s", port)
 	if err := rpc.StartServer(port); err != nil {
 		logger.Fatal("init grpc server failed, %v", err)
 	}
