@@ -1,12 +1,12 @@
-package log
+package logger
 
 import (
-	logging "log"
+	"log"
 	"os"
 )
 
 var (
-	defaultLog Log
+	defaultLog Logger
 )
 
 func init() {
@@ -21,7 +21,7 @@ type Verbose interface {
 	SetVerbose(verbose bool)
 }
 
-type Log interface {
+type Logger interface {
 	Verbose
 	Debug(msg string, v ...interface{})
 	Info(msg string, v ...interface{})
@@ -30,13 +30,13 @@ type Log interface {
 }
 
 type Console struct {
-	logger  *logging.Logger
+	logger  *log.Logger
 	verbose bool
 }
 
 func NewConsole(verbose bool) *Console {
 	return &Console{
-		logger:  logging.New(os.Stdout, "", logging.LstdFlags),
+		logger:  log.New(os.Stdout, "", log.LstdFlags),
 		verbose: verbose,
 	}
 }

@@ -3,7 +3,7 @@ package rpc
 import (
 	"context"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
-	"github.com/EdgarTeng/evolvest/pkg/common/log"
+	"github.com/EdgarTeng/evolvest/pkg/common/logger"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"google.golang.org/grpc"
 	"net"
@@ -40,7 +40,7 @@ func StartServer(port string) error {
 	evolvest.RegisterEvolvestServiceServer(srv, GetEvolvestServer())
 
 	go func() {
-		log.Fatal("%v", srv.Serve(lis))
+		logger.Fatal("%v", srv.Serve(lis))
 	}()
 	return nil
 }
