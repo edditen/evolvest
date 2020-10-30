@@ -46,9 +46,10 @@ func StartServer(port string) error {
 }
 
 func (e *EvolvestServer) Get(ctx context.Context, request *evolvest.GetRequest) (*evolvest.GetResponse, error) {
-	logger.Debug("request get params, context: %v, request: %v", ctx, request)
+	log := logger.WithField("params", request).
+		WithField("ctx", ctx)
 	val, err := e.store.Get(request.GetKey())
-	logger.Debug("request get result, value: %v, err: %v", val, err)
+	log.WithField("val", val).WithError(err).Debug("request get")
 	if err != nil {
 		return nil, err
 	}
@@ -59,9 +60,12 @@ func (e *EvolvestServer) Get(ctx context.Context, request *evolvest.GetRequest) 
 }
 
 func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) (*evolvest.SetResponse, error) {
-	logger.Debug("request set, context params: %v, request: %v", ctx, request)
+	log := logger.WithField("params", request).
+		WithField("ctx", ctx)
 	oldVal, exists := e.store.Set(request.GetKey(), request.GetVal())
-	logger.Debug("request set result, oldVal: %v, exists: %v", oldVal, exists)
+	log.WithField("oldVal", oldVal).
+		WithField("exists", exists).
+		Debug("request set")
 	if exists {
 		return &evolvest.SetResponse{
 			Key:      request.GetKey(),
@@ -78,9 +82,12 @@ func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) 
 }
 
 func (e *EvolvestServer) Del(ctx context.Context, request *evolvest.DelRequest) (*evolvest.DelResponse, error) {
-	logger.Debug("request del, context: %v, request: %v", ctx, request)
+	log := logger.WithField("params", request).
+		WithField("ctx", ctx)
 	oldVal, err := e.store.Del(request.GetKey())
-	logger.Debug("request del result, oldVal: %v, err: %v", oldVal, err)
+	log.WithField("oldVal", oldVal).
+		WithError(err).
+		Debug("request del")
 	if err != nil {
 		return nil, err
 	}
