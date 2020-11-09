@@ -49,12 +49,12 @@ func (e *EvolvestClient) Get(ctx context.Context, key string) (val string, err e
 	if err != nil {
 		return "", err
 	}
-	return resp.GetVal(), nil
+	return string(resp.GetVal()), nil
 
 }
 
 func (e *EvolvestClient) Set(ctx context.Context, key, val string) (err error) {
-	req := &evolvest.SetRequest{Key: key, Val: val}
+	req := &evolvest.SetRequest{Key: key, Val: []byte(val)}
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()

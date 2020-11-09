@@ -74,8 +74,8 @@ func TestWatcher_Notify(t *testing.T) {
 	type args struct {
 		action int
 		key    string
-		oldVal string
-		newVal string
+		oldVal []byte
+		newVal []byte
 	}
 	tests := []struct {
 		name    string
@@ -91,8 +91,8 @@ func TestWatcher_Notify(t *testing.T) {
 			args: args{
 				action: SET,
 				key:    "hello",
-				oldVal: "",
-				newVal: "world",
+				oldVal: nil,
+				newVal: []byte("world"),
 			},
 			wantErr: false,
 		},
@@ -114,10 +114,10 @@ func TestWatcher(t *testing.T) {
 
 		GetWatcher().Add("hello", listenChange)
 		GetWatcher().Add("hello", listenChange)
-		GetStore().Set("hello", "world")
+		GetStore().Set("hello", []byte("world"))
 
 		GetWatcher().Add("hello", listenChange)
-		GetStore().Set("hello", "newWorld")
+		GetStore().Set("hello", []byte("newWorld"))
 
 		GetWatcher().Add("hello", listenChange)
 		GetStore().Del("hello")

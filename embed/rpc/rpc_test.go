@@ -42,7 +42,7 @@ func TestEvolvestServer_Del(t *testing.T) {
 			},
 			want: &evolvest.DelResponse{
 				Key: "hello",
-				Val: "world",
+				Val: []byte("world"),
 			},
 			wantErr: false,
 		}
@@ -51,7 +51,7 @@ func TestEvolvestServer_Del(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Del(gomock.Any()).Return("world", nil).Times(1)
+		mockStore.EXPECT().Del(gomock.Any()).Return([]byte("world"), nil).Times(1)
 
 		got, err := e.Del(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {
@@ -99,7 +99,7 @@ func TestEvolvestServer_Del(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Del(gomock.Any()).Return("", fmt.Errorf("key not exist")).Times(1)
+		mockStore.EXPECT().Del(gomock.Any()).Return(nil, fmt.Errorf("key not exist")).Times(1)
 
 		got, err := e.Del(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {
@@ -143,7 +143,7 @@ func TestEvolvestServer_Get(t *testing.T) {
 			},
 			want: &evolvest.GetResponse{
 				Key: "hello",
-				Val: "world",
+				Val: []byte("world"),
 			},
 			wantErr: false,
 		}
@@ -152,7 +152,7 @@ func TestEvolvestServer_Get(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Get(gomock.Any()).Return("world", nil).Times(1)
+		mockStore.EXPECT().Get(gomock.Any()).Return([]byte("world"), nil).Times(1)
 
 		got, err := e.Get(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {
@@ -200,7 +200,7 @@ func TestEvolvestServer_Get(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Get(gomock.Any()).Return("", fmt.Errorf("key not exist")).Times(1)
+		mockStore.EXPECT().Get(gomock.Any()).Return(nil, fmt.Errorf("key not exist")).Times(1)
 
 		got, err := e.Get(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {
@@ -240,14 +240,14 @@ func TestEvolvestServer_Set(t *testing.T) {
 				ctx: context.Background(),
 				request: &evolvest.SetRequest{
 					Key: "hello",
-					Val: "world",
+					Val: []byte("world"),
 				},
 			},
 			want: &evolvest.SetResponse{
 				Key:      "hello",
 				ExistVal: false,
-				OldVal:   "",
-				NewVal:   "world",
+				OldVal:   nil,
+				NewVal:   []byte("world"),
 			},
 			wantErr: false,
 		}
@@ -256,7 +256,7 @@ func TestEvolvestServer_Set(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return("", false).Times(1)
+		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return(nil, false).Times(1)
 
 		got, err := e.Set(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {
@@ -294,14 +294,14 @@ func TestEvolvestServer_Set(t *testing.T) {
 				ctx: context.Background(),
 				request: &evolvest.SetRequest{
 					Key: "hello",
-					Val: "world",
+					Val: []byte("world"),
 				},
 			},
 			want: &evolvest.SetResponse{
 				Key:      "hello",
 				ExistVal: true,
-				OldVal:   "123",
-				NewVal:   "world",
+				OldVal:   []byte("123"),
+				NewVal:   []byte("world"),
 			},
 			wantErr: false,
 		}
@@ -310,7 +310,7 @@ func TestEvolvestServer_Set(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return("123", true).Times(1)
+		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return([]byte("123"), true).Times(1)
 
 		got, err := e.Set(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {

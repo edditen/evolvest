@@ -3,8 +3,8 @@ package store
 type Notification struct {
 	action int
 	key    string
-	oldVal string
-	newVal string
+	oldVal []byte
+	newVal []byte
 }
 
 type NotifyFunc = func(<-chan Notification)
@@ -42,7 +42,7 @@ func (w *Watcher) Add(key string, fn NotifyFunc) error {
 
 }
 
-func (w *Watcher) Notify(action int, key, oldVal, newVal string) error {
+func (w *Watcher) Notify(action int, key string, oldVal, newVal []byte) error {
 
 	chans, ok := w.chMap[key]
 	if ok {

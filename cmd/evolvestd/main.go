@@ -39,15 +39,16 @@ func prepare() {
 		logger.Info("show config, %s", cfg)
 	}
 
-	// init grpc
+}
+
+func startServer() {
+
+	// init server
 	port := ":" + config.Config().ServerPort
 	logger.Info("Server running, on listen %s", port)
 	if err := rpc.StartServer(port); err != nil {
 		logger.Fatal("init grpc server failed, %v", err)
 	}
-}
-
-func startServer() {
 
 	// recover data from file
 	store.Recover()

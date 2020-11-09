@@ -33,10 +33,10 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // Set mocks base method
-func (m *MockStore) Set(key, val string) (string, bool) {
+func (m *MockStore) Set(key string, val []byte) ([]byte, bool) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Set", key, val)
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(bool)
 	return ret0, ret1
 }
@@ -48,10 +48,10 @@ func (mr *MockStoreMockRecorder) Set(key, val interface{}) *gomock.Call {
 }
 
 // Get mocks base method
-func (m *MockStore) Get(key string) (string, error) {
+func (m *MockStore) Get(key string) ([]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", key)
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -63,10 +63,10 @@ func (mr *MockStoreMockRecorder) Get(key interface{}) *gomock.Call {
 }
 
 // Del mocks base method
-func (m *MockStore) Del(key string) (string, error) {
+func (m *MockStore) Del(key string) ([]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Del", key)
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -77,7 +77,7 @@ func (mr *MockStoreMockRecorder) Del(key interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Del", reflect.TypeOf((*MockStore)(nil).Del), key)
 }
 
-// Save mocks base method
+// Serialize mocks base method
 func (m *MockStore) Serialize() ([]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Serialize")
@@ -86,8 +86,8 @@ func (m *MockStore) Serialize() ([]byte, error) {
 	return ret0, ret1
 }
 
-// Save indicates an expected call of Save
-func (mr *MockStoreMockRecorder) Save() *gomock.Call {
+// Serialize indicates an expected call of Serialize
+func (mr *MockStoreMockRecorder) Serialize() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Serialize", reflect.TypeOf((*MockStore)(nil).Serialize))
 }

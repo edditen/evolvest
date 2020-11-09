@@ -10,19 +10,19 @@ message GetRequest {
 
 message GetResponse{
   string key = 1;
-  string val = 2;
+  bytes val = 2;
 }
 
 message SetRequest {
   string key = 1;
-  string val = 2;
+  bytes val = 2;
 }
 
 message SetResponse{
   string key = 1;
   bool existVal = 2;
-  string oldVal = 3;
-  string newVal = 4;
+  bytes oldVal = 3;
+  bytes newVal = 4;
 }
 
 message DelRequest {
@@ -31,7 +31,7 @@ message DelRequest {
 
 message DelResponse{
   string key = 1;
-  string val = 2;
+  bytes val = 2;
 }
 
 service EvolvestService {

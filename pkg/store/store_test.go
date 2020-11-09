@@ -8,7 +8,7 @@ import (
 
 func TestEvolvest_Del(t *testing.T) {
 	type fields struct {
-		Nodes map[string]string
+		Nodes map[string][]byte
 	}
 	type args struct {
 		key string
@@ -17,33 +17,33 @@ func TestEvolvest_Del(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		wantVal string
+		wantVal []byte
 		wantErr bool
 	}{
 		{
 			name: "key exits",
 			fields: fields{
-				Nodes: map[string]string{
-					"hello": "world",
+				Nodes: map[string][]byte{
+					"hello": []byte("world"),
 				},
 			},
 			args: args{
 				key: "hello",
 			},
-			wantVal: "world",
+			wantVal: []byte("world"),
 			wantErr: false,
 		},
 		{
 			name: "key not exits",
 			fields: fields{
-				Nodes: map[string]string{
-					"hello": "world",
+				Nodes: map[string][]byte{
+					"hello": []byte("world"),
 				},
 			},
 			args: args{
 				key: "hello123",
 			},
-			wantVal: "",
+			wantVal: nil,
 			wantErr: true,
 		},
 	}
@@ -67,7 +67,7 @@ func TestEvolvest_Del(t *testing.T) {
 
 func TestEvolvest_Get(t *testing.T) {
 	type fields struct {
-		Nodes map[string]string
+		Nodes map[string][]byte
 	}
 	type args struct {
 		key string
@@ -76,33 +76,33 @@ func TestEvolvest_Get(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		wantVal string
+		wantVal []byte
 		wantErr bool
 	}{
 		{
 			name: "key exits",
 			fields: fields{
-				Nodes: map[string]string{
-					"hello": "world",
+				Nodes: map[string][]byte{
+					"hello": []byte("world"),
 				},
 			},
 			args: args{
 				key: "hello",
 			},
-			wantVal: "world",
+			wantVal: []byte("world"),
 			wantErr: false,
 		},
 		{
 			name: "key not exits",
 			fields: fields{
-				Nodes: map[string]string{
-					"hello": "world",
+				Nodes: map[string][]byte{
+					"hello": []byte("world"),
 				},
 			},
 			args: args{
 				key: "hello123",
 			},
-			wantVal: "",
+			wantVal: nil,
 			wantErr: true,
 		},
 	}
@@ -126,45 +126,45 @@ func TestEvolvest_Get(t *testing.T) {
 
 func TestEvolvest_Set(t *testing.T) {
 	type fields struct {
-		Nodes map[string]string
+		Nodes map[string][]byte
 	}
 	type args struct {
 		key string
-		val string
+		val []byte
 	}
 	tests := []struct {
 		name       string
 		fields     fields
 		args       args
-		wantOldVal string
+		wantOldVal []byte
 		wantExist  bool
 	}{
 		{
 			name: "key exit",
 			fields: fields{
-				Nodes: map[string]string{
-					"hello": "world",
+				Nodes: map[string][]byte{
+					"hello": []byte("world"),
 				},
 			},
 			args: args{
 				key: "hello",
-				val: "123",
+				val: []byte("123"),
 			},
-			wantOldVal: "world",
+			wantOldVal: []byte("world"),
 			wantExist:  true,
 		},
 		{
 			name: "key not exit",
 			fields: fields{
-				Nodes: map[string]string{
-					"hello": "world",
+				Nodes: map[string][]byte{
+					"hello": []byte("world"),
 				},
 			},
 			args: args{
 				key: "hello123",
-				val: "123",
+				val: []byte("123"),
 			},
-			wantOldVal: "",
+			wantOldVal: nil,
 			wantExist:  false,
 		},
 	}
@@ -193,7 +193,7 @@ func TestNewEvolvest(t *testing.T) {
 	}{
 		{
 			name: "normal",
-			want: &Evolvest{Nodes: make(map[string]string, 17)},
+			want: &Evolvest{Nodes: make(map[string][]byte, 17)},
 		},
 	}
 	for _, tt := range tests {
@@ -208,7 +208,7 @@ func TestNewEvolvest(t *testing.T) {
 
 func TestEvolvest_Save(t *testing.T) {
 	type fields struct {
-		Nodes map[string]string
+		Nodes map[string][]byte
 	}
 	tests := []struct {
 		name     string
@@ -227,7 +227,7 @@ func TestEvolvest_Save(t *testing.T) {
 		{
 			name: "empty",
 			fields: fields{
-				Nodes: map[string]string{},
+				Nodes: map[string][]byte{},
 			},
 			wantData: []byte(`{"nodes":{}}`),
 			wantErr:  false,
@@ -235,11 +235,11 @@ func TestEvolvest_Save(t *testing.T) {
 		{
 			name: "have values",
 			fields: fields{
-				Nodes: map[string]string{
-					"hello": "world",
+				Nodes: map[string][]byte{
+					"hello": []byte("world"),
 				},
 			},
-			wantData: []byte(`{"nodes":{"hello":"world"}}`),
+			wantData: []byte(`{"nodes":{"hello":"d29ybGQ="}}`),
 			wantErr:  false,
 		},
 	}
@@ -264,7 +264,7 @@ func TestEvolvest_Save(t *testing.T) {
 
 func TestEvolvest_Load(t *testing.T) {
 	type fields struct {
-		Nodes map[string]string
+		Nodes map[string][]byte
 	}
 	type args struct {
 		data []byte
@@ -278,8 +278,8 @@ func TestEvolvest_Load(t *testing.T) {
 		{
 			name: "nil",
 			fields: fields{
-				Nodes: map[string]string{
-					"abc": "123",
+				Nodes: map[string][]byte{
+					"abc": []byte("123"),
 				},
 			},
 			args: args{
@@ -290,8 +290,8 @@ func TestEvolvest_Load(t *testing.T) {
 		{
 			name: "empty",
 			fields: fields{
-				Nodes: map[string]string{
-					"abc": "123",
+				Nodes: map[string][]byte{
+					"abc": []byte("123"),
 				},
 			},
 			args: args{
@@ -302,13 +302,13 @@ func TestEvolvest_Load(t *testing.T) {
 		{
 			name: "not empty",
 			fields: fields{
-				Nodes: map[string]string{
-					"abc":   "123",
-					"hello": "456",
+				Nodes: map[string][]byte{
+					"abc":   []byte("123"),
+					"hello": []byte("456"),
 				},
 			},
 			args: args{
-				data: []byte(`{"Nodes":{"hello":"world"}}`),
+				data: []byte(`{"nodes":{"hello":"d29ybGQ="}}`),
 			},
 			wantErr: false,
 		},
