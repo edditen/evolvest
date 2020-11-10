@@ -39,9 +39,7 @@ func StartServer(port string) error {
 	srv := grpc.NewServer()
 	evolvest.RegisterEvolvestServiceServer(srv, GetEvolvestServer())
 
-	go func() {
-		logger.Fatal("%v", srv.Serve(lis))
-	}()
+	logger.Fatal("%v", srv.Serve(lis))
 	return nil
 }
 

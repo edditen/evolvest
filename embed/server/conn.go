@@ -4,12 +4,14 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/EdgarTeng/evolvest/pkg/common/logger"
 	"github.com/tidwall/btree"
 	"github.com/tidwall/match"
 	"io"
 	"net"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -620,10 +622,30 @@ type Handler interface {
 	ServeRESP(conn Conn, cmd Command)
 }
 
+type AccessLogHandler struct {
+	next Handler
+}
+
+func NewAccessLogHandler(next Handler) *AccessLogHandler {
+	return &AccessLogHandler{next: next}
+}
+
+func (h *AccessLogHandler) ServeRESP(conn Conn, cmd Command) {
+	log := logger.WithField("cmd", cmd.String())
+	start := time.Now()
+	h.next.ServeRESP(conn, cmd)
+	duration := time.Since(start)
+	log.WithField("duration", duration).Debug("access")
+}
+
+func buildHandlerChain(handler Handler) Handler {
+	return NewAccessLogHandler(handler)
+}
+
 // HandleFunc registers the handler function for the given command.
 func (m *ServeMux) HandleFunc(command string, handler func(conn Conn, cmd Command)) {
 	if handler == nil {
-		panic("redcon: nil handler")
+		panic("evolvest: nil handler")
 	}
 	m.Handle(command, HandlerFunc(handler))
 }
@@ -632,16 +654,16 @@ func (m *ServeMux) HandleFunc(command string, handler func(conn Conn, cmd Comman
 // If a handler already exists for command, Handle panics.
 func (m *ServeMux) Handle(command string, handler Handler) {
 	if command == "" {
-		panic("redcon: invalid command")
+		panic("evolvest: invalid command")
 	}
 	if handler == nil {
-		panic("redcon: nil handler")
+		panic("evolvest: nil handler")
 	}
 	if _, exist := m.handlers[command]; exist {
-		panic("redcon: multiple registrations for " + command)
+		panic("evolvest: multiple registrations for " + command)
 	}
 
-	m.handlers[command] = handler
+	m.handlers[command] = buildHandlerChain(handler)
 }
 
 // ServeRESP dispatches the command to the handler.

@@ -31,7 +31,7 @@ type TLSServer struct {
 	config *tls.Config
 }
 
-// NewServer returns a new Redcon server configured on "tcp" network net.
+// NewServer returns a new evolvest server configured on "tcp" network net.
 func NewServer(addr string,
 	handler func(conn Conn, cmd Command),
 	accept func(conn Conn) bool,
@@ -40,7 +40,7 @@ func NewServer(addr string,
 	return NewServerNetwork("tcp", addr, handler, accept, closed)
 }
 
-// NewServerTLS returns a new Redcon TLS server configured on "tcp" network net.
+// NewServerTLS returns a new evolvest TLS server configured on "tcp" network net.
 func NewServerTLS(addr string,
 	handler func(conn Conn, cmd Command),
 	accept func(conn Conn) bool,
@@ -50,7 +50,7 @@ func NewServerTLS(addr string,
 	return NewServerNetworkTLS("tcp", addr, handler, accept, closed, config)
 }
 
-// NewServerNetwork returns a new Redcon server. The network net must be
+// NewServerNetwork returns a new evolvest server. The network net must be
 // a stream-oriented network: "tcp", "tcp4", "tcp6", "unix" or "unixpacket"
 func NewServerNetwork(
 	net, laddr string,
@@ -72,7 +72,7 @@ func NewServerNetwork(
 	return s
 }
 
-// NewServerNetworkTLS returns a new TLS Redcon server. The network net must be
+// NewServerNetworkTLS returns a new TLS evolvest server. The network net must be
 // a stream-oriented network: "tcp", "tcp4", "tcp6", "unix" or "unixpacket"
 func NewServerNetworkTLS(
 	net, laddr string,
@@ -366,11 +366,13 @@ func StartServer(addr string) error {
 		func(conn Conn) bool {
 			// use this function to accept or deny the connection.
 			// log.Printf("accept: %s", conn.RemoteAddr())
+			logger.Info("accept: %s", conn.RemoteAddr())
 			return true
 		},
 		func(conn Conn, err error) {
 			// this is called when the connection has been closed
 			// log.Printf("closed: %s, err: %v", conn.RemoteAddr(), err)
+			logger.Info("closed: %s, err: %v", conn.RemoteAddr(), err)
 		},
 	)
 	if err != nil {

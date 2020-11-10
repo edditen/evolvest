@@ -29,10 +29,15 @@ type Logger interface {
 	WithError(err error) Logger
 }
 
+type MapEntry struct {
+	key string
+	val interface{}
+}
+
 type Console struct {
 	logger  *log.Logger
 	verbose bool
-	fields  map[string]interface{}
+	fields  []*MapEntry
 	err     error
 }
 
@@ -40,7 +45,7 @@ func NewConsole(verbose bool) *Console {
 	return &Console{
 		logger:  log.New(os.Stdout, "", log.LstdFlags),
 		verbose: verbose,
-		fields:  make(map[string]interface{}),
+		fields:  make([]*MapEntry, 0),
 	}
 }
 
@@ -69,7 +74,7 @@ func (l *Console) Fatal(msg string, v ...interface{}) {
 
 func (l *Console) WithField(field string, val interface{}) Logger {
 	l.checkNil()
-	l.fields[field] = val
+	l.fields = append(l.fields, &MapEntry{key: field, val: val})
 	return l
 }
 
@@ -86,10 +91,13 @@ func (l *Console) build(level, msg string, v ...interface{}) string {
 
 	if len(l.fields) > 0 {
 		sb.WriteString(" | ")
-		for field, val := range l.fields {
-			sb.WriteString(field)
+		for _, entry := range l.fields {
+			if entry == nil {
+				continue
+			}
+			sb.WriteString(entry.key)
 			sb.WriteString("=")
-			sb.WriteString(fmt.Sprintf("%v", val))
+			sb.WriteString(fmt.Sprintf("%v", entry.val))
 			sb.WriteString(",")
 		}
 	}
@@ -105,7 +113,7 @@ func (l *Console) build(level, msg string, v ...interface{}) string {
 
 func (l *Console) checkNil() {
 	if l.fields == nil {
-		l.fields = make(map[string]interface{})
+		l.fields = make([]*MapEntry, 0)
 	}
 }
 

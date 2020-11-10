@@ -13,7 +13,7 @@ type Type byte
 
 // Various RESP kinds
 // refers to: https://redis.io/topics/protocol
-// refers to: https://github.com/tidwall/redcon
+// refers to: https://github.com/tidwall/evolvest
 const (
 	Integer = ':'
 	String  = '+'
