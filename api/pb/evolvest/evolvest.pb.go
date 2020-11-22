@@ -359,6 +359,91 @@ func (x *DelResponse) GetVal() []byte {
 	return nil
 }
 
+type SyncRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *SyncRequest) Reset() {
+	*x = SyncRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_evolvest_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SyncRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncRequest) ProtoMessage() {}
+
+func (x *SyncRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_evolvest_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncRequest.ProtoReflect.Descriptor instead.
+func (*SyncRequest) Descriptor() ([]byte, []int) {
+	return file_evolvest_proto_rawDescGZIP(), []int{6}
+}
+
+type SyncResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Values []byte `protobuf:"bytes,1,opt,name=values,proto3" json:"values,omitempty"`
+}
+
+func (x *SyncResponse) Reset() {
+	*x = SyncResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_evolvest_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SyncResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncResponse) ProtoMessage() {}
+
+func (x *SyncResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_evolvest_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncResponse.ProtoReflect.Descriptor instead.
+func (*SyncResponse) Descriptor() ([]byte, []int) {
+	return file_evolvest_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SyncResponse) GetValues() []byte {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
 var File_evolvest_proto protoreflect.FileDescriptor
 
 var file_evolvest_proto_rawDesc = []byte{
@@ -383,18 +468,25 @@ var file_evolvest_proto_rawDesc = []byte{
 	0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x22, 0x31, 0x0a, 0x0b,
 	0x44, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x6b,
 	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x10, 0x0a,
-	0x03, 0x76, 0x61, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x03, 0x76, 0x61, 0x6c, 0x32,
-	0xb3, 0x01, 0x0a, 0x0f, 0x45, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76,
-	0x69, 0x63, 0x65, 0x12, 0x34, 0x0a, 0x03, 0x47, 0x65, 0x74, 0x12, 0x14, 0x2e, 0x65, 0x76, 0x6f,
-	0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x15, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x34, 0x0a, 0x03, 0x53, 0x65, 0x74,
-	0x12, 0x14, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x53, 0x65, 0x74, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73,
-	0x74, 0x2e, 0x53, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
-	0x34, 0x0a, 0x03, 0x44, 0x65, 0x6c, 0x12, 0x14, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73,
-	0x74, 0x2e, 0x44, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e, 0x65,
-	0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x44, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x03, 0x76, 0x61, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x03, 0x76, 0x61, 0x6c, 0x22,
+	0x0d, 0x0a, 0x0b, 0x53, 0x79, 0x6e, 0x63, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x26,
+	0x0a, 0x0c, 0x53, 0x79, 0x6e, 0x63, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x16,
+	0x0a, 0x06, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06,
+	0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x32, 0xec, 0x01, 0x0a, 0x0f, 0x45, 0x76, 0x6f, 0x6c, 0x76,
+	0x65, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x34, 0x0a, 0x03, 0x47, 0x65,
+	0x74, 0x12, 0x14, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x47, 0x65, 0x74,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65,
+	0x73, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
+	0x12, 0x34, 0x0a, 0x03, 0x53, 0x65, 0x74, 0x12, 0x14, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65,
+	0x73, 0x74, 0x2e, 0x53, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e,
+	0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x53, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x34, 0x0a, 0x03, 0x44, 0x65, 0x6c, 0x12, 0x14, 0x2e,
+	0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x44, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x44,
+	0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x37, 0x0a, 0x04,
+	0x53, 0x79, 0x6e, 0x63, 0x12, 0x15, 0x2e, 0x65, 0x76, 0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e,
+	0x53, 0x79, 0x6e, 0x63, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e, 0x65, 0x76,
+	0x6f, 0x6c, 0x76, 0x65, 0x73, 0x74, 0x2e, 0x53, 0x79, 0x6e, 0x63, 0x52, 0x65, 0x73, 0x70, 0x6f,
 	0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0c, 0x5a, 0x0a, 0x2e, 0x3b, 0x65, 0x76, 0x6f, 0x6c, 0x76,
 	0x65, 0x73, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
@@ -411,24 +503,28 @@ func file_evolvest_proto_rawDescGZIP() []byte {
 	return file_evolvest_proto_rawDescData
 }
 
-var file_evolvest_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_evolvest_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_evolvest_proto_goTypes = []interface{}{
-	(*GetRequest)(nil),  // 0: evolvest.GetRequest
-	(*GetResponse)(nil), // 1: evolvest.GetResponse
-	(*SetRequest)(nil),  // 2: evolvest.SetRequest
-	(*SetResponse)(nil), // 3: evolvest.SetResponse
-	(*DelRequest)(nil),  // 4: evolvest.DelRequest
-	(*DelResponse)(nil), // 5: evolvest.DelResponse
+	(*GetRequest)(nil),   // 0: evolvest.GetRequest
+	(*GetResponse)(nil),  // 1: evolvest.GetResponse
+	(*SetRequest)(nil),   // 2: evolvest.SetRequest
+	(*SetResponse)(nil),  // 3: evolvest.SetResponse
+	(*DelRequest)(nil),   // 4: evolvest.DelRequest
+	(*DelResponse)(nil),  // 5: evolvest.DelResponse
+	(*SyncRequest)(nil),  // 6: evolvest.SyncRequest
+	(*SyncResponse)(nil), // 7: evolvest.SyncResponse
 }
 var file_evolvest_proto_depIdxs = []int32{
 	0, // 0: evolvest.EvolvestService.Get:input_type -> evolvest.GetRequest
 	2, // 1: evolvest.EvolvestService.Set:input_type -> evolvest.SetRequest
 	4, // 2: evolvest.EvolvestService.Del:input_type -> evolvest.DelRequest
-	1, // 3: evolvest.EvolvestService.Get:output_type -> evolvest.GetResponse
-	3, // 4: evolvest.EvolvestService.Set:output_type -> evolvest.SetResponse
-	5, // 5: evolvest.EvolvestService.Del:output_type -> evolvest.DelResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	6, // 3: evolvest.EvolvestService.Sync:input_type -> evolvest.SyncRequest
+	1, // 4: evolvest.EvolvestService.Get:output_type -> evolvest.GetResponse
+	3, // 5: evolvest.EvolvestService.Set:output_type -> evolvest.SetResponse
+	5, // 6: evolvest.EvolvestService.Del:output_type -> evolvest.DelResponse
+	7, // 7: evolvest.EvolvestService.Sync:output_type -> evolvest.SyncResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -512,6 +608,30 @@ func file_evolvest_proto_init() {
 				return nil
 			}
 		}
+		file_evolvest_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SyncRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_evolvest_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SyncResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -519,7 +639,7 @@ func file_evolvest_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_evolvest_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -548,6 +668,7 @@ type EvolvestServiceClient interface {
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	Set(ctx context.Context, in *SetRequest, opts ...grpc.CallOption) (*SetResponse, error)
 	Del(ctx context.Context, in *DelRequest, opts ...grpc.CallOption) (*DelResponse, error)
+	Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncResponse, error)
 }
 
 type evolvestServiceClient struct {
@@ -585,11 +706,21 @@ func (c *evolvestServiceClient) Del(ctx context.Context, in *DelRequest, opts ..
 	return out, nil
 }
 
+func (c *evolvestServiceClient) Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncResponse, error) {
+	out := new(SyncResponse)
+	err := c.cc.Invoke(ctx, "/evolvest.EvolvestService/Sync", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EvolvestServiceServer is the server API for EvolvestService service.
 type EvolvestServiceServer interface {
 	Get(context.Context, *GetRequest) (*GetResponse, error)
 	Set(context.Context, *SetRequest) (*SetResponse, error)
 	Del(context.Context, *DelRequest) (*DelResponse, error)
+	Sync(context.Context, *SyncRequest) (*SyncResponse, error)
 }
 
 // UnimplementedEvolvestServiceServer can be embedded to have forward compatible implementations.
@@ -604,6 +735,9 @@ func (*UnimplementedEvolvestServiceServer) Set(context.Context, *SetRequest) (*S
 }
 func (*UnimplementedEvolvestServiceServer) Del(context.Context, *DelRequest) (*DelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Del not implemented")
+}
+func (*UnimplementedEvolvestServiceServer) Sync(context.Context, *SyncRequest) (*SyncResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 
 func RegisterEvolvestServiceServer(s *grpc.Server, srv EvolvestServiceServer) {
@@ -664,6 +798,24 @@ func _EvolvestService_Del_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EvolvestService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EvolvestServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/evolvest.EvolvestService/Sync",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EvolvestServiceServer).Sync(ctx, req.(*SyncRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _EvolvestService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "evolvest.EvolvestService",
 	HandlerType: (*EvolvestServiceServer)(nil),
@@ -679,6 +831,10 @@ var _EvolvestService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Del",
 			Handler:    _EvolvestService_Del_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _EvolvestService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

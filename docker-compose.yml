@@ -3,18 +3,21 @@ services:
   evolvestd_1:
     build: .
     ports:
-      - "8761:8762"
-      - "8081:8080"
+      - "18762:8762"
+      - "18763:8763"
+      - "18080:8080"
     restart: always
   evolvestd_2:
     build: .
     ports:
-      - "8762:8762"
-      - "8082:8080"
+      - "28762:8762"
+      - "28763:8763"
+      - "28080:8080"
     restart: always
   evolvestd_3:
     build: .
     ports:
-      - "8763:8762"
-      - "8083:8080"
+      - "38762:8762"
+      - "38763:8763"
+      - "38080:8080"
     restart: always

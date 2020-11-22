@@ -94,3 +94,18 @@ func (e *EvolvestServer) Del(ctx context.Context, request *evolvest.DelRequest) 
 		Val: oldVal,
 	}, nil
 }
+
+func (e *EvolvestServer) Sync(ctx context.Context, request *evolvest.SyncRequest) (*evolvest.SyncResponse, error) {
+	log := logger.WithField("params", request).
+		WithField("ctx", ctx)
+	values, err := e.store.Serialize()
+	log.WithField("values", values).
+		WithError(err).
+		Debug("request sync")
+	if err != nil {
+		return nil, err
+	}
+	return &evolvest.SyncResponse{
+		Values: values,
+	}, nil
+}

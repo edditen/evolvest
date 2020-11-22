@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	CmdGet = "get"
-	CmdSet = "set"
-	CmdDel = "del"
+	CmdGet  = "get"
+	CmdSet  = "set"
+	CmdDel  = "del"
+	CmdSync = "sync"
 )
 
-var commands = []string{CmdGet, CmdSet, CmdDel}
+var commands = []string{CmdGet, CmdSet, CmdDel, CmdSync}
 
 type Command interface {
 	Execute(args ...string) (string, error)
@@ -32,6 +33,10 @@ func NewCommand(cmd string) (Command, error) {
 		}}, nil
 	case CmdDel:
 		return &DelCommand{baseCommand{
+			client: GetEvolvestClient(),
+		}}, nil
+	case CmdSync:
+		return &SyncCommand{baseCommand{
 			client: GetEvolvestClient(),
 		}}, nil
 	}
@@ -123,4 +128,18 @@ func (c *DelCommand) Execute(args ...string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	return "ok", c.client.Del(ctx, args[0])
+}
+
+type SyncCommand struct {
+	baseCommand
+}
+
+func (c *SyncCommand) Execute(args ...string) (string, error) {
+	if len(args) != 0 {
+		return "", fmt.Errorf("wrong format, no required parameters")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	return c.client.Sync(ctx)
 }

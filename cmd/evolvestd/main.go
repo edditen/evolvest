@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/EdgarTeng/evolvest/embed/rpc"
 	"github.com/EdgarTeng/evolvest/embed/server"
 	"github.com/EdgarTeng/evolvest/pkg/common/config"
 	"github.com/EdgarTeng/evolvest/pkg/common/logger"
@@ -46,11 +47,19 @@ func startServer() {
 	// recover data from file
 	store.Recover()
 
-	// start server
-	port := ":" + config.Config().ServerPort
-	logger.Info("Server running, on listen %s", port)
+	syncPort := ":" + config.Config().SyncPort
+	logger.Info("Sync server running, on listen %s", syncPort)
 	go func() {
-		if err := server.StartServer(port); err != nil {
+		if err := rpc.StartServer(syncPort); err != nil {
+			logger.Fatal("init server failed, %v", err)
+		}
+	}()
+
+	// start server
+	serverPort := ":" + config.Config().ServerPort
+	logger.Info("Server running, on listen %s", serverPort)
+	go func() {
+		if err := server.StartServer(serverPort); err != nil {
 			logger.Fatal("init server failed, %v", err)
 		}
 	}()

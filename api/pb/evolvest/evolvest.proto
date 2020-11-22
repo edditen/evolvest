@@ -34,8 +34,16 @@ message DelResponse{
   bytes val = 2;
 }
 
+message SyncRequest {
+}
+
+message SyncResponse{
+  bytes values = 1;
+}
+
 service EvolvestService {
   rpc Get(GetRequest) returns (GetResponse){}
   rpc Set(SetRequest) returns (SetResponse){}
   rpc Del(DelRequest) returns (DelResponse){}
+  rpc Sync(SyncRequest) returns (SyncResponse){}
 }

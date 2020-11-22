@@ -31,7 +31,7 @@ func StartClient(addr string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	fmt.Printf("connecting to %s\n", addr)
-	conn, err := grpc.DialContext(ctx, addr, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.DialContext(ctx, addr, grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,6 @@ func (e *EvolvestClient) Get(ctx context.Context, key string) (val string, err e
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	resp, err := e.client.Get(ctx, req)
-	//log.Printf("get response: %v\n", resp)
 	if err != nil {
 		return "", err
 	}
@@ -59,7 +58,6 @@ func (e *EvolvestClient) Set(ctx context.Context, key, val string) (err error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	_, err = e.client.Set(ctx, req)
-	//log.Printf("set response: %v\n", resp)
 	if err != nil {
 		return err
 	}
@@ -72,9 +70,20 @@ func (e *EvolvestClient) Del(ctx context.Context, key string) (err error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	_, err = e.client.Del(ctx, req)
-	//log.Printf("del response: %v\n", resp)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (e *EvolvestClient) Sync(ctx context.Context) (values string, err error) {
+	req := &evolvest.SyncRequest{}
+
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+	resp, err := e.client.Sync(ctx, req)
+	if err != nil {
+		return "", err
+	}
+	return string(resp.Values), nil
 }

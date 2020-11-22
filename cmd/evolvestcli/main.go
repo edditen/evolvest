@@ -31,7 +31,7 @@ func main() {
 }
 
 func parseArgs() (addr string) {
-	flag.StringVar(&addr, "a", "127.0.0.1:8762", "address")
+	flag.StringVar(&addr, "a", "127.0.0.1:8763", "address")
 	flag.Parse()
 	return
 }

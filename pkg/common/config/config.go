@@ -45,7 +45,8 @@ func PrintConfig() (string, error) {
 }
 
 type Conf struct {
-	ServerPort   string `json:"server_port"`
-	WebAdminPort string `json:"web_admin_port"`
-	DataDir      string `json:"data_dir"`
+	ServerPort string `json:"server_port"`
+	SyncPort   string `json:"sync_port"`
+	AdminPort  string `json:"admin_port"`
+	DataDir    string `json:"data_dir"`
 }
