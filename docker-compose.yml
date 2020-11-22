@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+  evolvestd_1:
+    build: .
+    ports:
+      - "8761:8762"
+      - "8081:8080"
+    restart: always
+  evolvestd_2:
+    build: .
+    ports:
+      - "8762:8762"
+      - "8082:8080"
+    restart: always
+  evolvestd_3:
+    build: .
+    ports:
+      - "8763:8762"
+      - "8083:8080"
+    restart: always

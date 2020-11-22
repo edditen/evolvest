@@ -62,3 +62,6 @@ docker-clean:
 	@docker container rm -f evolvestd
 	@docker image rm -f tenchael.com/evolvestd
 
+.PHONY: up
+up:
+	@docker-compose up
