@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/EdgarTeng/evolvest/pkg/common/logger"
+	"github.com/EdgarTeng/evolvest/pkg/common/utils"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"sync"
 )
@@ -45,7 +46,10 @@ func (h *CmdHandler) set(conn Conn, cmd Command) {
 	}
 
 	h.itemsMux.Lock()
-	h.store.Set(string(cmd.Args[1]), cmd.Args[2])
+	h.store.Set(string(cmd.Args[1]), store.ValItem{
+		Val:     cmd.Args[2],
+		Version: utils.CurrentMillis(),
+	})
 	h.itemsMux.Unlock()
 
 	conn.WriteString("OK")
@@ -64,7 +68,7 @@ func (h *CmdHandler) get(conn Conn, cmd Command) {
 	if err != nil {
 		conn.WriteNull()
 	} else {
-		conn.WriteBulk(val)
+		conn.WriteBulk(val.Val)
 	}
 }
 

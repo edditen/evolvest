@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
 	"github.com/EdgarTeng/evolvest/pkg/common/logger"
+	"github.com/EdgarTeng/evolvest/pkg/common/utils"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"google.golang.org/grpc"
 	"net"
@@ -53,14 +54,17 @@ func (e *EvolvestServer) Get(ctx context.Context, request *evolvest.GetRequest) 
 	}
 	return &evolvest.GetResponse{
 		Key: request.GetKey(),
-		Val: val,
+		Val: val.Val,
 	}, nil
 }
 
 func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) (*evolvest.SetResponse, error) {
 	log := logger.WithField("params", request).
 		WithField("ctx", ctx)
-	oldVal, exists := e.store.Set(request.GetKey(), request.GetVal())
+	oldVal, exists := e.store.Set(request.GetKey(), store.ValItem{
+		Val:     request.GetVal(),
+		Version: utils.CurrentMillis(),
+	})
 	log.WithField("oldVal", oldVal).
 		WithField("exists", exists).
 		Debug("request set")
@@ -68,7 +72,7 @@ func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) 
 		return &evolvest.SetResponse{
 			Key:      request.GetKey(),
 			ExistVal: true,
-			OldVal:   oldVal,
+			OldVal:   oldVal.Val,
 			NewVal:   request.GetVal(),
 		}, nil
 	}
@@ -91,7 +95,7 @@ func (e *EvolvestServer) Del(ctx context.Context, request *evolvest.DelRequest) 
 	}
 	return &evolvest.DelResponse{
 		Key: request.GetKey(),
-		Val: oldVal,
+		Val: oldVal.Val,
 	}, nil
 }
 

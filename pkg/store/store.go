@@ -17,13 +17,18 @@ const (
 	DEL
 )
 
+type ValItem struct {
+	Val     []byte
+	Version int64
+}
+
 type Store interface {
 	// Set new value, return old value if existed
-	Set(key string, val []byte) (oldVal []byte, exist bool)
+	Set(key string, valItem ValItem) (oldVal ValItem, exist bool)
 	// Get value of key
-	Get(key string) (val []byte, err error)
+	Get(key string) (val ValItem, err error)
 	// Del value of key, and return value
-	Del(key string) (val []byte, err error)
+	Del(key string) (val ValItem, err error)
 	// Serialize current data
 	Serialize() (data []byte, err error)
 	// Deserialize data to current state
@@ -31,7 +36,7 @@ type Store interface {
 }
 
 type Evolvest struct {
-	Nodes map[string][]byte `json:"nodes"`
+	Nodes map[string]ValItem `json:"nodes"`
 }
 
 var store Store
@@ -45,11 +50,15 @@ func GetStore() Store {
 }
 
 func NewEvolvest() *Evolvest {
-	return &Evolvest{Nodes: make(map[string][]byte, 17)}
+	return &Evolvest{Nodes: make(map[string]ValItem, 17)}
 }
 
-func (e *Evolvest) Set(key string, val []byte) (oldVal []byte, exist bool) {
+func (e *Evolvest) Set(key string, val ValItem) (oldVal ValItem, exist bool) {
 	oldVal, ok := e.Nodes[key]
+	if ok && val.Version < oldVal.Version {
+		// exist key, compare with the original one
+		return oldVal, true
+	}
 	e.Nodes[key] = val
 
 	defer func() {
@@ -60,24 +69,24 @@ func (e *Evolvest) Set(key string, val []byte) (oldVal []byte, exist bool) {
 		return oldVal, true
 	}
 
-	return nil, false
+	return ValItem{}, false
 }
 
-func (e *Evolvest) Get(key string) (val []byte, err error) {
+func (e *Evolvest) Get(key string) (val ValItem, err error) {
 	if val, ok := e.Nodes[key]; ok {
 		return val, nil
 	}
-	return nil, fmt.Errorf("key %s not exists", key)
+	return ValItem{}, fmt.Errorf("key %s not exists", key)
 }
 
-func (e *Evolvest) Del(key string) (val []byte, err error) {
+func (e *Evolvest) Del(key string) (val ValItem, err error) {
 	if val, ok := e.Nodes[key]; ok {
 
 		delete(e.Nodes, key)
-		_ = GetWatcher().Notify(DEL, key, val, nil)
+		_ = GetWatcher().Notify(DEL, key, val, ValItem{})
 		return val, nil
 	}
-	return nil, fmt.Errorf("key %s not exists", key)
+	return ValItem{}, fmt.Errorf("key %s not exists", key)
 }
 
 func (e *Evolvest) Serialize() (data []byte, err error) {
