@@ -48,7 +48,7 @@ func (h *CmdHandler) set(conn Conn, cmd Command) {
 	h.itemsMux.Lock()
 	h.store.Set(string(cmd.Args[1]), store.DataItem{
 		Val: cmd.Args[2],
-		Ver: utils.CurrentMillis(),
+		Ver: utils.GenerateId(),
 	})
 	h.itemsMux.Unlock()
 
