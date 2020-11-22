@@ -2,6 +2,9 @@ version: '3.3'
 services:
   evolvestd_1:
     build: .
+    environment:
+      evolvest_serv_id: "1"
+      evolvest_serv_addrs: "evolvestd_2:8763,evolvestd_3:8763"
     ports:
       - "18762:8762"
       - "18763:8763"
@@ -9,6 +12,9 @@ services:
     restart: always
   evolvestd_2:
     build: .
+    environment:
+      evolvest_serv_id: "2"
+      evolvest_serv_addrs: "evolvestd_1:8763,evolvestd_3:8763"
     ports:
       - "28762:8762"
       - "28763:8763"
@@ -16,6 +22,9 @@ services:
     restart: always
   evolvestd_3:
     build: .
+    environment:
+      evolvest_serv_id: "3"
+      evolvest_serv_addrs: "evolvestd_1:8763,evolvestd_2:8763"
     ports:
       - "38762:8762"
       - "38763:8763"

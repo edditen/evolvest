@@ -39,6 +39,7 @@ func prepare() {
 	} else {
 		logger.Info("show config, %s", cfg)
 	}
+	store.InitSyncUp()
 
 }
 

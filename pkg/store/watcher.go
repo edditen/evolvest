@@ -1,7 +1,7 @@
 package store
 
 type Notification struct {
-	action int
+	action string
 	key    string
 	oldVal DataItem
 	newVal DataItem
@@ -42,7 +42,7 @@ func (w *Watcher) Add(key string, fn NotifyFunc) error {
 
 }
 
-func (w *Watcher) Notify(action int, key string, oldVal, newVal DataItem) error {
+func (w *Watcher) Notify(action string, key string, oldVal, newVal DataItem) error {
 
 	chans, ok := w.chMap[key]
 	if ok {

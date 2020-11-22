@@ -41,9 +41,18 @@ message SyncResponse{
   bytes values = 1;
 }
 
+message PushRequest {
+  repeated string txCmds = 1;
+}
+
+message PushResponse {
+  bool ok = 1;
+}
+
 service EvolvestService {
   rpc Get(GetRequest) returns (GetResponse){}
   rpc Set(SetRequest) returns (SetResponse){}
   rpc Del(DelRequest) returns (DelResponse){}
   rpc Sync(SyncRequest) returns (SyncResponse){}
+  rpc Push(PushRequest) returns (PushResponse){}
 }

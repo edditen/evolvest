@@ -3,11 +3,14 @@ package rpc
 import (
 	"context"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
+	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/common/logger"
 	"github.com/EdgarTeng/evolvest/pkg/common/utils"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"google.golang.org/grpc"
 	"net"
+	"strconv"
+	"strings"
 )
 
 var evolvestServer *EvolvestServer
@@ -86,7 +89,7 @@ func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) 
 func (e *EvolvestServer) Del(ctx context.Context, request *evolvest.DelRequest) (*evolvest.DelResponse, error) {
 	log := logger.WithField("params", request).
 		WithField("ctx", ctx)
-	oldVal, err := e.store.Del(request.GetKey())
+	oldVal, err := e.store.Del(request.GetKey(), utils.GenerateId())
 	log.WithField("oldVal", oldVal).
 		WithError(err).
 		Debug("request del")
@@ -112,4 +115,63 @@ func (e *EvolvestServer) Sync(ctx context.Context, request *evolvest.SyncRequest
 	return &evolvest.SyncResponse{
 		Values: values,
 	}, nil
+}
+
+func (e *EvolvestServer) Push(ctx context.Context, request *evolvest.PushRequest) (*evolvest.PushResponse, error) {
+	logger.WithField("params", request).
+		WithField("ctx", ctx).Debug("access")
+	for _, req := range request.TxCmds {
+		if txReq := parseCmd(req); txReq != nil {
+			store.Submit(txReq)
+		}
+	}
+	return &evolvest.PushResponse{
+		Ok: true,
+	}, nil
+}
+
+func parseCmd(cmdText string) *common.TxRequest {
+	log := logger.WithField("cmdText", cmdText)
+	texts := strings.Split(cmdText, " ")
+	if len(texts) < 4 {
+		log.Warn("parse cmd error, missing required")
+		return nil
+	}
+
+	txReq := &common.TxRequest{}
+
+	id, err := strconv.Atoi(texts[0])
+	if err != nil {
+		log.Warn("parse cmd error, txid is wrong format")
+		return nil
+	}
+
+	txReq.TxId = int64(id)
+	txReq.Flag = common.FlagSync
+	txReq.Key = texts[3]
+
+	switch texts[2] {
+	case common.DEL:
+		txReq.Action = common.DEL
+	case common.SET:
+		txReq.Action = common.SET
+		if len(texts) == 4 {
+			txReq.Val = []byte{}
+		} else if len(texts) == 5 {
+			if val, err := utils.Base64Decode(texts[4]); err != nil {
+				log.Warn("parse cmd error, value is wrong format")
+				return nil
+			} else {
+				txReq.Val = val
+			}
+		} else {
+			log.Warn("parse cmd error, more than one values")
+			return nil
+		}
+	default:
+		log.Warn("parse cmd error, cmd not support")
+		return nil
+	}
+	log.WithField("req", txReq).Debug("parsed request")
+	return txReq
 }

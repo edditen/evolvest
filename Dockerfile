@@ -13,4 +13,4 @@ WORKDIR /app
 ADD conf conf
 COPY --from=builder /app/evolvestd .
 EXPOSE 8762 8080
-ENTRYPOINT ["./evolvestd", "-c", "conf/config.yaml"]
+ENTRYPOINT ["./evolvestd", "-c", "conf/config.yaml", "-v"]

@@ -11,12 +11,6 @@ import (
 	"path"
 )
 
-const (
-	ERR = -(1 + iota)
-	SET
-	DEL
-)
-
 type DataItem struct {
 	Val []byte
 	Ver int64
@@ -24,11 +18,11 @@ type DataItem struct {
 
 type Store interface {
 	// Set new value, return old value if existed
-	Set(key string, valItem DataItem) (oldVal DataItem, exist bool)
+	Set(key string, val DataItem) (oldVal DataItem, exist bool)
 	// Get value of key
 	Get(key string) (val DataItem, err error)
 	// Del value of key, and return value
-	Del(key string) (val DataItem, err error)
+	Del(key string, ver int64) (val DataItem, err error)
 	// Serialize current data
 	Serialize() (data []byte, err error)
 	// Deserialize data to current state
@@ -62,7 +56,7 @@ func (e *Evolvest) Set(key string, val DataItem) (oldVal DataItem, exist bool) {
 	e.Nodes[key] = val
 
 	defer func() {
-		_ = GetWatcher().Notify(SET, key, oldVal, val)
+		_ = GetWatcher().Notify(common.SET, key, oldVal, val)
 	}()
 
 	if ok {
@@ -79,11 +73,13 @@ func (e *Evolvest) Get(key string) (val DataItem, err error) {
 	return DataItem{}, fmt.Errorf("key %s not exists", key)
 }
 
-func (e *Evolvest) Del(key string) (val DataItem, err error) {
+func (e *Evolvest) Del(key string, ver int64) (val DataItem, err error) {
 	if val, ok := e.Nodes[key]; ok {
-
+		if ver < val.Ver {
+			return DataItem{}, fmt.Errorf("ver %d is less than store", ver)
+		}
 		delete(e.Nodes, key)
-		_ = GetWatcher().Notify(DEL, key, val, DataItem{})
+		_ = GetWatcher().Notify(common.DEL, key, val, DataItem{})
 		return val, nil
 	}
 	return DataItem{}, fmt.Errorf("key %s not exists", key)
@@ -111,7 +107,7 @@ func Persistent() {
 		logger.Warn("mkdir error, %v", err)
 	}
 
-	filename := path.Join(dataDir, common.SnapshotFile)
+	filename := path.Join(dataDir, common.FileSnapshot)
 	err = ioutil.WriteFile(filename, data, 0644)
 	if err != nil {
 		logger.Warn("write data to file error, %v", err)
@@ -121,7 +117,7 @@ func Persistent() {
 }
 
 func Recover() {
-	filename := path.Join(config.Config().DataDir, common.SnapshotFile)
+	filename := path.Join(config.Config().DataDir, common.FileSnapshot)
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		logger.Warn("read data from file error, %v", err)

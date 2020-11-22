@@ -87,3 +87,17 @@ func (e *EvolvestClient) Sync(ctx context.Context) (values string, err error) {
 	}
 	return string(resp.Values), nil
 }
+
+func (e *EvolvestClient) Push(ctx context.Context, txCmd string) (ok string, err error) {
+	req := &evolvest.PushRequest{
+		TxCmds: []string{txCmd},
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+	_, err = e.client.Push(ctx, req)
+	if err != nil {
+		return "", err
+	}
+	return "ok", nil
+}

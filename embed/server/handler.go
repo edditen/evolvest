@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/common/logger"
 	"github.com/EdgarTeng/evolvest/pkg/common/utils"
 	"github.com/EdgarTeng/evolvest/pkg/store"
@@ -46,9 +47,12 @@ func (h *CmdHandler) set(conn Conn, cmd Command) {
 	}
 
 	h.itemsMux.Lock()
-	h.store.Set(string(cmd.Args[1]), store.DataItem{
-		Val: cmd.Args[2],
-		Ver: utils.GenerateId(),
+	store.Submit(&common.TxRequest{
+		TxId:   utils.GenerateId(),
+		Flag:   common.FlagReq,
+		Action: common.SET,
+		Key:    string(cmd.Args[1]),
+		Val:    cmd.Args[2],
 	})
 	h.itemsMux.Unlock()
 
@@ -79,13 +83,14 @@ func (h *CmdHandler) delete(conn Conn, cmd Command) {
 	}
 
 	h.itemsMux.Lock()
-	_, err := h.store.Del(string(cmd.Args[1]))
+	store.Submit(&common.TxRequest{
+		TxId:   utils.GenerateId(),
+		Flag:   common.FlagReq,
+		Action: common.DEL,
+		Key:    string(cmd.Args[1]),
+	})
 
 	h.itemsMux.Unlock()
 
-	if err != nil {
-		conn.WriteInt(0)
-	} else {
-		conn.WriteInt(1)
-	}
+	conn.WriteInt(1)
 }

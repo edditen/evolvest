@@ -13,9 +13,10 @@ const (
 	CmdSet  = "set"
 	CmdDel  = "del"
 	CmdSync = "sync"
+	CmdPush = "push"
 )
 
-var commands = []string{CmdGet, CmdSet, CmdDel, CmdSync}
+var commands = []string{CmdGet, CmdSet, CmdDel, CmdSync, CmdPush}
 
 type Command interface {
 	Execute(args ...string) (string, error)
@@ -39,7 +40,12 @@ func NewCommand(cmd string) (Command, error) {
 		return &SyncCommand{baseCommand{
 			client: GetEvolvestClient(),
 		}}, nil
+	case CmdPush:
+		return &PushCommand{baseCommand{
+			client: GetEvolvestClient(),
+		}}, nil
 	}
+
 	return nil, fmt.Errorf("cmd %s not support", cmd)
 
 }
@@ -142,4 +148,20 @@ func (c *SyncCommand) Execute(args ...string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	return c.client.Sync(ctx)
+}
+
+type PushCommand struct {
+	baseCommand
+}
+
+func (c *PushCommand) Execute(args ...string) (string, error) {
+	if len(args) < 4 {
+		return "", fmt.Errorf("wrong format, missing required parameters")
+	}
+	text := fmt.Sprintf("%s %s %s %s %s",
+		args[0], args[1], args[2], args[3], args[4])
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	return c.client.Push(ctx, text)
 }

@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"github.com/EdgarTeng/evolvest/pkg/common"
+	"github.com/EdgarTeng/evolvest/pkg/common/logger"
 	"os"
 	"strconv"
 	"sync/atomic"
@@ -17,7 +19,8 @@ var (
 )
 
 func init() {
-	servId := os.Getenv("evolvest_serv_id")
+	servId := os.Getenv(common.EnvSid)
+	logger.WithField(common.EnvSid, servId).Info("env")
 	if servId != "" {
 		if i, err := strconv.Atoi(servId); err == nil {
 			sid = i
