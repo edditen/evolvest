@@ -46,3 +46,19 @@ gen-pb:
 
 .PHONY: all
 all: clean test build run
+
+
+.PHONY: docker-build
+docker-build:
+	@docker build -t tenchael.com/evolvestd .
+
+.PHONY: docker-run
+docker-run:
+	@docker run --name evolvestd -p 8762:8762 -p 8080:8080 tenchael.com/evolvestd
+
+
+.PHONY: docker-clean
+docker-clean:
+	@docker container rm -f evolvestd
+	@docker image rm -f tenchael.com/evolvestd
+
