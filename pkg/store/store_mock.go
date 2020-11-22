@@ -33,10 +33,10 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // Set mocks base method
-func (m *MockStore) Set(key string, valItem ValItem) (ValItem, bool) {
+func (m *MockStore) Set(key string, valItem DataItem) (DataItem, bool) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Set", key, valItem)
-	ret0, _ := ret[0].(ValItem)
+	ret0, _ := ret[0].(DataItem)
 	ret1, _ := ret[1].(bool)
 	return ret0, ret1
 }
@@ -48,10 +48,10 @@ func (mr *MockStoreMockRecorder) Set(key, valItem interface{}) *gomock.Call {
 }
 
 // Get mocks base method
-func (m *MockStore) Get(key string) (ValItem, error) {
+func (m *MockStore) Get(key string) (DataItem, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", key)
-	ret0, _ := ret[0].(ValItem)
+	ret0, _ := ret[0].(DataItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -63,10 +63,10 @@ func (mr *MockStoreMockRecorder) Get(key interface{}) *gomock.Call {
 }
 
 // Del mocks base method
-func (m *MockStore) Del(key string) (ValItem, error) {
+func (m *MockStore) Del(key string) (DataItem, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Del", key)
-	ret0, _ := ret[0].(ValItem)
+	ret0, _ := ret[0].(DataItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

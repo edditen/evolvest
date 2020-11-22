@@ -51,9 +51,9 @@ func TestEvolvestServer_Del(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Del(gomock.Any()).Return(store.ValItem{
-			Val:     []byte("world"),
-			Version: 123,
+		mockStore.EXPECT().Del(gomock.Any()).Return(store.DataItem{
+			Val: []byte("world"),
+			Ver: 123,
 		}, nil).Times(1)
 
 		got, err := e.Del(tt.args.ctx, tt.args.request)
@@ -102,7 +102,7 @@ func TestEvolvestServer_Del(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Del(gomock.Any()).Return(store.ValItem{}, fmt.Errorf("key not exist")).Times(1)
+		mockStore.EXPECT().Del(gomock.Any()).Return(store.DataItem{}, fmt.Errorf("key not exist")).Times(1)
 
 		got, err := e.Del(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {
@@ -155,9 +155,9 @@ func TestEvolvestServer_Get(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Get(gomock.Any()).Return(store.ValItem{
-			Val:     []byte("world"),
-			Version: 123,
+		mockStore.EXPECT().Get(gomock.Any()).Return(store.DataItem{
+			Val: []byte("world"),
+			Ver: 123,
 		}, nil).Times(1)
 
 		got, err := e.Get(tt.args.ctx, tt.args.request)
@@ -206,7 +206,7 @@ func TestEvolvestServer_Get(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Get(gomock.Any()).Return(store.ValItem{}, fmt.Errorf("key not exist")).Times(1)
+		mockStore.EXPECT().Get(gomock.Any()).Return(store.DataItem{}, fmt.Errorf("key not exist")).Times(1)
 
 		got, err := e.Get(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {
@@ -262,7 +262,7 @@ func TestEvolvestServer_Set(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return(store.ValItem{}, false).Times(1)
+		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return(store.DataItem{}, false).Times(1)
 
 		got, err := e.Set(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {
@@ -316,9 +316,9 @@ func TestEvolvestServer_Set(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return(store.ValItem{
-			Val:     []byte("123"),
-			Version: 123,
+		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return(store.DataItem{
+			Val: []byte("123"),
+			Ver: 123,
 		}, true).Times(1)
 
 		got, err := e.Set(tt.args.ctx, tt.args.request)

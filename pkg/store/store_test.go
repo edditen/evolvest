@@ -8,7 +8,7 @@ import (
 
 func TestEvolvest_Del(t *testing.T) {
 	type fields struct {
-		Nodes map[string]ValItem
+		Nodes map[string]DataItem
 	}
 	type args struct {
 		key string
@@ -17,42 +17,42 @@ func TestEvolvest_Del(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		wantVal ValItem
+		wantVal DataItem
 		wantErr bool
 	}{
 		{
 			name: "key exits",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"hello": {
-						Val:     []byte("world"),
-						Version: 123,
+						Val: []byte("world"),
+						Ver: 123,
 					},
 				},
 			},
 			args: args{
 				key: "hello",
 			},
-			wantVal: ValItem{
-				Val:     []byte("world"),
-				Version: 123,
+			wantVal: DataItem{
+				Val: []byte("world"),
+				Ver: 123,
 			},
 			wantErr: false,
 		},
 		{
 			name: "key not exits",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"hello": {
-						Val:     []byte("world"),
-						Version: 123,
+						Val: []byte("world"),
+						Ver: 123,
 					},
 				},
 			},
 			args: args{
 				key: "hello123",
 			},
-			wantVal: ValItem{},
+			wantVal: DataItem{},
 			wantErr: true,
 		},
 	}
@@ -76,7 +76,7 @@ func TestEvolvest_Del(t *testing.T) {
 
 func TestEvolvest_Get(t *testing.T) {
 	type fields struct {
-		Nodes map[string]ValItem
+		Nodes map[string]DataItem
 	}
 	type args struct {
 		key string
@@ -85,42 +85,42 @@ func TestEvolvest_Get(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		wantVal ValItem
+		wantVal DataItem
 		wantErr bool
 	}{
 		{
 			name: "key exits",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"hello": {
-						Val:     []byte("world"),
-						Version: 123,
+						Val: []byte("world"),
+						Ver: 123,
 					},
 				},
 			},
 			args: args{
 				key: "hello",
 			},
-			wantVal: ValItem{
-				Val:     []byte("world"),
-				Version: 123,
+			wantVal: DataItem{
+				Val: []byte("world"),
+				Ver: 123,
 			},
 			wantErr: false,
 		},
 		{
 			name: "key not exits",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"hello": {
-						Val:     []byte("world"),
-						Version: 123,
+						Val: []byte("world"),
+						Ver: 123,
 					},
 				},
 			},
 			args: args{
 				key: "hello123",
 			},
-			wantVal: ValItem{},
+			wantVal: DataItem{},
 			wantErr: true,
 		},
 	}
@@ -144,60 +144,60 @@ func TestEvolvest_Get(t *testing.T) {
 
 func TestEvolvest_Set(t *testing.T) {
 	type fields struct {
-		Nodes map[string]ValItem
+		Nodes map[string]DataItem
 	}
 	type args struct {
 		key string
-		val ValItem
+		val DataItem
 	}
 	tests := []struct {
 		name       string
 		fields     fields
 		args       args
-		wantOldVal ValItem
+		wantOldVal DataItem
 		wantExist  bool
 	}{
 		{
 			name: "key exit",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"hello": {
-						Val:     []byte("world"),
-						Version: 123,
+						Val: []byte("world"),
+						Ver: 123,
 					},
 				},
 			},
 			args: args{
 				key: "hello",
-				val: ValItem{
-					Val:     []byte("123"),
-					Version: 123,
+				val: DataItem{
+					Val: []byte("123"),
+					Ver: 123,
 				},
 			},
-			wantOldVal: ValItem{
-				Val:     []byte("world"),
-				Version: 123,
+			wantOldVal: DataItem{
+				Val: []byte("world"),
+				Ver: 123,
 			},
 			wantExist: true,
 		},
 		{
 			name: "key not exit",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"hello": {
-						Val:     []byte("world"),
-						Version: 123,
+						Val: []byte("world"),
+						Ver: 123,
 					},
 				},
 			},
 			args: args{
 				key: "hello123",
-				val: ValItem{
-					Val:     []byte("123"),
-					Version: 123,
+				val: DataItem{
+					Val: []byte("123"),
+					Ver: 123,
 				},
 			},
-			wantOldVal: ValItem{},
+			wantOldVal: DataItem{},
 			wantExist:  false,
 		},
 	}
@@ -226,7 +226,7 @@ func TestNewEvolvest(t *testing.T) {
 	}{
 		{
 			name: "normal",
-			want: &Evolvest{Nodes: make(map[string]ValItem, 17)},
+			want: &Evolvest{Nodes: make(map[string]DataItem, 17)},
 		},
 	}
 	for _, tt := range tests {
@@ -241,7 +241,7 @@ func TestNewEvolvest(t *testing.T) {
 
 func TestEvolvest_Save(t *testing.T) {
 	type fields struct {
-		Nodes map[string]ValItem
+		Nodes map[string]DataItem
 	}
 	tests := []struct {
 		name     string
@@ -260,7 +260,7 @@ func TestEvolvest_Save(t *testing.T) {
 		{
 			name: "empty",
 			fields: fields{
-				Nodes: map[string]ValItem{},
+				Nodes: map[string]DataItem{},
 			},
 			wantData: []byte(`{"nodes":{}}`),
 			wantErr:  false,
@@ -268,14 +268,14 @@ func TestEvolvest_Save(t *testing.T) {
 		{
 			name: "have values",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"hello": {
-						Val:     []byte("world"),
-						Version: 123,
+						Val: []byte("world"),
+						Ver: 123,
 					},
 				},
 			},
-			wantData: []byte(`{"nodes":{"hello":{"Val":"d29ybGQ=","Version":123}}}`),
+			wantData: []byte(`{"nodes":{"hello":{"Val":"d29ybGQ=","Ver":123}}}`),
 			wantErr:  false,
 		},
 	}
@@ -300,7 +300,7 @@ func TestEvolvest_Save(t *testing.T) {
 
 func TestEvolvest_Load(t *testing.T) {
 	type fields struct {
-		Nodes map[string]ValItem
+		Nodes map[string]DataItem
 	}
 	type args struct {
 		data []byte
@@ -314,10 +314,10 @@ func TestEvolvest_Load(t *testing.T) {
 		{
 			name: "nil",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"abc": {
-						Val:     []byte("123"),
-						Version: 123,
+						Val: []byte("123"),
+						Ver: 123,
 					},
 				},
 			},
@@ -329,10 +329,10 @@ func TestEvolvest_Load(t *testing.T) {
 		{
 			name: "empty",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"abc": {
-						Val:     []byte("123"),
-						Version: 123,
+						Val: []byte("123"),
+						Ver: 123,
 					},
 				},
 			},
@@ -344,19 +344,19 @@ func TestEvolvest_Load(t *testing.T) {
 		{
 			name: "not empty",
 			fields: fields{
-				Nodes: map[string]ValItem{
+				Nodes: map[string]DataItem{
 					"abc": {
-						Val:     []byte("123"),
-						Version: 123,
+						Val: []byte("123"),
+						Ver: 123,
 					},
 					"hello": {
-						Val:     []byte("456"),
-						Version: 123,
+						Val: []byte("456"),
+						Ver: 123,
 					},
 				},
 			},
 			args: args{
-				data: []byte(`{"nodes":{"abc":{"Val":"MTIz","Version":123},"hello":{"Val":null,"Version":0}}}`),
+				data: []byte(`{"nodes":{"abc":{"Val":"MTIz","Ver":123},"hello":{"Val":null,"Ver":0}}}`),
 			},
 			wantErr: false,
 		},

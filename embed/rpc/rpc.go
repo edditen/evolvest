@@ -61,9 +61,9 @@ func (e *EvolvestServer) Get(ctx context.Context, request *evolvest.GetRequest) 
 func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) (*evolvest.SetResponse, error) {
 	log := logger.WithField("params", request).
 		WithField("ctx", ctx)
-	oldVal, exists := e.store.Set(request.GetKey(), store.ValItem{
-		Val:     request.GetVal(),
-		Version: utils.CurrentMillis(),
+	oldVal, exists := e.store.Set(request.GetKey(), store.DataItem{
+		Val: request.GetVal(),
+		Ver: utils.CurrentMillis(),
 	})
 	log.WithField("oldVal", oldVal).
 		WithField("exists", exists).
