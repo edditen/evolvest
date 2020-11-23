@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	reqChan = make(chan *common.TxRequest, 100)
+	reqChan = make(chan *common.TxRequest, 1000)
 	evolvestClients = make([]*EvolvestClient, 0)
 }
 
@@ -66,7 +66,7 @@ func Process() {
 			setToStore(req)
 			appendTxFile(req)
 			if req.Flag == common.FlagReq {
-				pushToRemote(req)
+				go pushToRemote(req)
 			}
 		}
 	}()
@@ -137,21 +137,77 @@ func (e *EvolvestClient) Push(pushText string) {
 func (e *EvolvestClient) Process() {
 	go func() {
 		for {
-			pushText := <-e.pushChan
+			items := aggr(e.pushChan, 20, 2000)
+			if len(items) == 0 {
+				continue
+			}
 			req := &evolvest.PushRequest{
-				TxCmds: []string{pushText},
+				TxCmds: items,
 			}
 
 			resp, err := CallGrpcWithTimeout(func(ctx context.Context) (interface{}, error) {
 				return e.client.Push(ctx, req)
 			})
+
+			log := logger.WithField("commands", req.TxCmds)
 			if err != nil {
-				logger.WithError(err).Warn("push tx request to remote failed")
+				log = log.WithError(err)
+				if retry(e.pushChan, req.TxCmds) {
+					log.Warn("push tx request to remote failed, reaches max retry times, abandon")
+				} else {
+					log.Info("push tx request to remote failed, retry")
+				}
 				continue
+
 			}
-			logger.WithField("response", resp).Debug("push to remote response")
+			resetRetryCount()
+			log.WithField("response", resp).Debug("push to remote success")
 		}
 	}()
+}
+
+func aggr(ch <-chan string, maxCount int, maxWaitMillis int64) []string {
+	items := make([]string, 0)
+	timeout := time.Duration(maxWaitMillis) * time.Millisecond
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	for i := 0; i < maxCount; i++ {
+		select {
+		case item := <-ch:
+			items = append(items, item)
+		case <-ctx.Done():
+			break
+		}
+	}
+	return items
+
+}
+
+var (
+	sleepSecs   = 1
+	maxInterval = 1024
+)
+
+func retry(ch chan<- string, items []string) (reachLimit bool) {
+	if sleepSecs > maxInterval {
+		return true
+	}
+
+	go func() {
+		time.Sleep(time.Duration(sleepSecs) * time.Second)
+		for _, item := range items {
+			ch <- item
+		}
+
+		sleepSecs *= 2
+
+	}()
+	return false
+}
+
+func resetRetryCount() {
+	sleepSecs = 1
 }
 
 func CallGrpcWithTimeout(fn func(ctx context.Context) (interface{}, error)) (interface{}, error) {

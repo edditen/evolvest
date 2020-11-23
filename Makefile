@@ -60,6 +60,7 @@ docker-run:
 .PHONY: docker-clean
 docker-clean:
 	@docker container rm -f evolvestd
+	@docker image rm -f evolvest_evolvestd_1 evolvest_evolvestd_2 evolvest_evolvestd_3
 	@docker image rm -f tenchael.com/evolvestd
 
 .PHONY: up
