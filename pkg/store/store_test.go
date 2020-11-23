@@ -12,6 +12,7 @@ func TestEvolvest_Del(t *testing.T) {
 	}
 	type args struct {
 		key string
+		ver int64
 	}
 	tests := []struct {
 		name    string
@@ -32,6 +33,7 @@ func TestEvolvest_Del(t *testing.T) {
 			},
 			args: args{
 				key: "hello",
+				ver: 923455678901112,
 			},
 			wantVal: DataItem{
 				Val: []byte("world"),
@@ -51,6 +53,7 @@ func TestEvolvest_Del(t *testing.T) {
 			},
 			args: args{
 				key: "hello123",
+				ver: 923455678901112,
 			},
 			wantVal: DataItem{},
 			wantErr: true,
@@ -62,7 +65,7 @@ func TestEvolvest_Del(t *testing.T) {
 			e := &Evolvest{
 				Nodes: tt.fields.Nodes,
 			}
-			gotVal, err := e.Del(tt.args.key)
+			gotVal, err := e.Del(tt.args.key, tt.args.ver)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Del() error = %v, wantErr %v", err, tt.wantErr)
 				return

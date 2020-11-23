@@ -33,18 +33,18 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // Set mocks base method
-func (m *MockStore) Set(key string, valItem DataItem) (DataItem, bool) {
+func (m *MockStore) Set(key string, val DataItem) (DataItem, bool) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Set", key, valItem)
+	ret := m.ctrl.Call(m, "Set", key, val)
 	ret0, _ := ret[0].(DataItem)
 	ret1, _ := ret[1].(bool)
 	return ret0, ret1
 }
 
 // Set indicates an expected call of Set
-func (mr *MockStoreMockRecorder) Set(key, valItem interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) Set(key, val interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockStore)(nil).Set), key, valItem)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockStore)(nil).Set), key, val)
 }
 
 // Get mocks base method
@@ -63,18 +63,18 @@ func (mr *MockStoreMockRecorder) Get(key interface{}) *gomock.Call {
 }
 
 // Del mocks base method
-func (m *MockStore) Del(key string) (DataItem, error) {
+func (m *MockStore) Del(key string, ver int64) (DataItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Del", key)
+	ret := m.ctrl.Call(m, "Del", key, ver)
 	ret0, _ := ret[0].(DataItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Del indicates an expected call of Del
-func (mr *MockStoreMockRecorder) Del(key interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) Del(key, ver interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Del", reflect.TypeOf((*MockStore)(nil).Del), key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Del", reflect.TypeOf((*MockStore)(nil).Del), key, ver)
 }
 
 // Serialize mocks base method

@@ -51,7 +51,7 @@ func TestEvolvestServer_Del(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Del(gomock.Any()).Return(store.DataItem{
+		mockStore.EXPECT().Del(gomock.Any(), gomock.Any()).Return(store.DataItem{
 			Val: []byte("world"),
 			Ver: 123,
 		}, nil).Times(1)
@@ -102,7 +102,7 @@ func TestEvolvestServer_Del(t *testing.T) {
 			store: tt.fields.store,
 		}
 
-		mockStore.EXPECT().Del(gomock.Any()).Return(store.DataItem{}, fmt.Errorf("key not exist")).Times(1)
+		mockStore.EXPECT().Del(gomock.Any(), gomock.Any()).Return(store.DataItem{}, fmt.Errorf("key not exist")).Times(1)
 
 		got, err := e.Del(tt.args.ctx, tt.args.request)
 		if (err != nil) != tt.wantErr {

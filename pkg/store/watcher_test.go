@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"github.com/EdgarTeng/evolvest/pkg/common"
 	"reflect"
 	"testing"
 )
@@ -72,7 +73,7 @@ func TestWatcher_Notify(t *testing.T) {
 		chMap map[string][]chan Notification
 	}
 	type args struct {
-		action int
+		action string
 		key    string
 		oldVal DataItem
 		newVal DataItem
@@ -89,7 +90,7 @@ func TestWatcher_Notify(t *testing.T) {
 				chMap: make(map[string][]chan Notification),
 			},
 			args: args{
-				action: SET,
+				action: common.SET,
 				key:    "hello",
 				oldVal: DataItem{},
 				newVal: DataItem{
@@ -129,9 +130,9 @@ func TestWatcher(t *testing.T) {
 		})
 
 		GetWatcher().Add("hello", listenChange)
-		GetStore().Del("hello")
+		GetStore().Del("hello", 98765432101012)
 		GetWatcher().Add("hello", listenChange)
-		GetStore().Del("hello")
+		GetStore().Del("hello", 98765432101012)
 
 	})
 }
