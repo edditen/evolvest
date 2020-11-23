@@ -137,8 +137,9 @@ func (e *EvolvestClient) Push(pushText string) {
 func (e *EvolvestClient) Process() {
 	go func() {
 		for {
-			items := aggr(e.pushChan, 20, 2000)
+			items := aggr(e.pushChan, 20, 50)
 			if len(items) == 0 {
+				time.Sleep(time.Second)
 				continue
 			}
 			req := &evolvest.PushRequest{
