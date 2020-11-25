@@ -135,11 +135,11 @@ func TestEvolvest_Get(t *testing.T) {
 			}
 			gotVal, err := e.Get(tt.args.key)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Get() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Keys() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotVal, tt.wantVal) {
-				t.Errorf("Get() gotVal = %v, want %v", gotVal, tt.wantVal)
+				t.Errorf("Keys() gotVal = %v, want %v", gotVal, tt.wantVal)
 			}
 		})
 	}

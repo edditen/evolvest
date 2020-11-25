@@ -4,40 +4,18 @@ package evolvest;
 
 option go_package = ".;evolvest";
 
-message GetRequest {
-  string key = 1;
+message KeysRequest {
+  string pattern = 1;
 }
 
-message GetResponse{
-  string key = 1;
-  bytes val = 2;
+message KeysResponse{
+  repeated string keys = 1;
 }
 
-message SetRequest {
-  string key = 1;
-  bytes val = 2;
+message PullRequest {
 }
 
-message SetResponse{
-  string key = 1;
-  bool existVal = 2;
-  bytes oldVal = 3;
-  bytes newVal = 4;
-}
-
-message DelRequest {
-  string key = 1;
-}
-
-message DelResponse{
-  string key = 1;
-  bytes val = 2;
-}
-
-message SyncRequest {
-}
-
-message SyncResponse{
+message PullResponse{
   bytes values = 1;
 }
 
@@ -50,9 +28,7 @@ message PushResponse {
 }
 
 service EvolvestService {
-  rpc Get(GetRequest) returns (GetResponse){}
-  rpc Set(SetRequest) returns (SetResponse){}
-  rpc Del(DelRequest) returns (DelResponse){}
-  rpc Sync(SyncRequest) returns (SyncResponse){}
+  rpc Keys(KeysRequest) returns (KeysResponse){}
+  rpc Pull(PullRequest) returns (PullResponse){}
   rpc Push(PushRequest) returns (PushResponse){}
 }

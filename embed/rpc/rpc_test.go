@@ -2,336 +2,12 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"github.com/golang/mock/gomock"
 	"reflect"
 	"testing"
 )
-
-func TestEvolvestServer_Del(t *testing.T) {
-
-	t.Run("key exist", func(t *testing.T) {
-
-		controller := gomock.NewController(t)
-		defer controller.Finish()
-		mockStore := store.NewMockStore(controller)
-
-		type fields struct {
-			store store.Store
-		}
-		type args struct {
-			ctx     context.Context
-			request *evolvest.DelRequest
-		}
-		tt := struct {
-			fields  fields
-			args    args
-			want    *evolvest.DelResponse
-			wantErr bool
-		}{
-			fields: fields{
-				store: mockStore,
-			},
-			args: args{
-				ctx: context.Background(),
-				request: &evolvest.DelRequest{
-					Key: "hello",
-				},
-			},
-			want: &evolvest.DelResponse{
-				Key: "hello",
-				Val: []byte("world"),
-			},
-			wantErr: false,
-		}
-
-		e := &EvolvestServer{
-			store: tt.fields.store,
-		}
-
-		mockStore.EXPECT().Del(gomock.Any(), gomock.Any()).Return(store.DataItem{
-			Val: []byte("world"),
-			Ver: 123,
-		}, nil).Times(1)
-
-		got, err := e.Del(tt.args.ctx, tt.args.request)
-		if (err != nil) != tt.wantErr {
-			t.Errorf("Del() error = %v, wantErr %v", err, tt.wantErr)
-			return
-		}
-		if !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("Del() got = %v, want %v", got, tt.want)
-		}
-	})
-
-	t.Run("key not exist", func(t *testing.T) {
-
-		controller := gomock.NewController(t)
-		defer controller.Finish()
-		mockStore := store.NewMockStore(controller)
-
-		type fields struct {
-			store store.Store
-		}
-		type args struct {
-			ctx     context.Context
-			request *evolvest.DelRequest
-		}
-		tt := struct {
-			fields  fields
-			args    args
-			want    *evolvest.DelResponse
-			wantErr bool
-		}{
-			fields: fields{
-				store: mockStore,
-			},
-			args: args{
-				ctx: context.Background(),
-				request: &evolvest.DelRequest{
-					Key: "hello",
-				},
-			},
-			want:    nil,
-			wantErr: true,
-		}
-
-		e := &EvolvestServer{
-			store: tt.fields.store,
-		}
-
-		mockStore.EXPECT().Del(gomock.Any(), gomock.Any()).Return(store.DataItem{}, fmt.Errorf("key not exist")).Times(1)
-
-		got, err := e.Del(tt.args.ctx, tt.args.request)
-		if (err != nil) != tt.wantErr {
-			t.Errorf("Del() error = %v, wantErr %v", err, tt.wantErr)
-			return
-		}
-		if !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("Del() got = %v, want %v", got, tt.want)
-		}
-	})
-}
-
-func TestEvolvestServer_Get(t *testing.T) {
-	t.Run("key exist", func(t *testing.T) {
-
-		controller := gomock.NewController(t)
-		defer controller.Finish()
-		mockStore := store.NewMockStore(controller)
-
-		type fields struct {
-			store store.Store
-		}
-		type args struct {
-			ctx     context.Context
-			request *evolvest.GetRequest
-		}
-		tt := struct {
-			fields  fields
-			args    args
-			want    *evolvest.GetResponse
-			wantErr bool
-		}{
-			fields: fields{
-				store: mockStore,
-			},
-			args: args{
-				ctx: context.Background(),
-				request: &evolvest.GetRequest{
-					Key: "hello",
-				},
-			},
-			want: &evolvest.GetResponse{
-				Key: "hello",
-				Val: []byte("world"),
-			},
-			wantErr: false,
-		}
-
-		e := &EvolvestServer{
-			store: tt.fields.store,
-		}
-
-		mockStore.EXPECT().Get(gomock.Any()).Return(store.DataItem{
-			Val: []byte("world"),
-			Ver: 123,
-		}, nil).Times(1)
-
-		got, err := e.Get(tt.args.ctx, tt.args.request)
-		if (err != nil) != tt.wantErr {
-			t.Errorf("Get() error = %v, wantErr %v", err, tt.wantErr)
-			return
-		}
-		if !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("Get() got = %v, want %v", got, tt.want)
-		}
-	})
-
-	t.Run("key not exist", func(t *testing.T) {
-
-		controller := gomock.NewController(t)
-		defer controller.Finish()
-		mockStore := store.NewMockStore(controller)
-
-		type fields struct {
-			store store.Store
-		}
-		type args struct {
-			ctx     context.Context
-			request *evolvest.GetRequest
-		}
-		tt := struct {
-			fields  fields
-			args    args
-			want    *evolvest.GetResponse
-			wantErr bool
-		}{
-			fields: fields{
-				store: mockStore,
-			},
-			args: args{
-				ctx: context.Background(),
-				request: &evolvest.GetRequest{
-					Key: "hello",
-				},
-			},
-			want:    nil,
-			wantErr: true,
-		}
-
-		e := &EvolvestServer{
-			store: tt.fields.store,
-		}
-
-		mockStore.EXPECT().Get(gomock.Any()).Return(store.DataItem{}, fmt.Errorf("key not exist")).Times(1)
-
-		got, err := e.Get(tt.args.ctx, tt.args.request)
-		if (err != nil) != tt.wantErr {
-			t.Errorf("Del() error = %v, wantErr %v", err, tt.wantErr)
-			return
-		}
-		if !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("Del() got = %v, want %v", got, tt.want)
-		}
-	})
-}
-
-func TestEvolvestServer_Set(t *testing.T) {
-	t.Run("key not exist", func(t *testing.T) {
-
-		controller := gomock.NewController(t)
-		defer controller.Finish()
-		mockStore := store.NewMockStore(controller)
-
-		type fields struct {
-			store store.Store
-		}
-		type args struct {
-			ctx     context.Context
-			request *evolvest.SetRequest
-		}
-		tt := struct {
-			fields  fields
-			args    args
-			want    *evolvest.SetResponse
-			wantErr bool
-		}{
-			fields: fields{
-				store: mockStore,
-			},
-			args: args{
-				ctx: context.Background(),
-				request: &evolvest.SetRequest{
-					Key: "hello",
-					Val: []byte("world"),
-				},
-			},
-			want: &evolvest.SetResponse{
-				Key:      "hello",
-				ExistVal: false,
-				OldVal:   nil,
-				NewVal:   []byte("world"),
-			},
-			wantErr: false,
-		}
-
-		e := &EvolvestServer{
-			store: tt.fields.store,
-		}
-
-		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return(store.DataItem{}, false).Times(1)
-
-		got, err := e.Set(tt.args.ctx, tt.args.request)
-		if (err != nil) != tt.wantErr {
-			t.Errorf("Set() error = %v, wantErr %v", err, tt.wantErr)
-			return
-		}
-		if !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("Set() got = %v, want %v", got, tt.want)
-		}
-	})
-
-	t.Run("key exist", func(t *testing.T) {
-
-		controller := gomock.NewController(t)
-		defer controller.Finish()
-		mockStore := store.NewMockStore(controller)
-
-		type fields struct {
-			store store.Store
-		}
-		type args struct {
-			ctx     context.Context
-			request *evolvest.SetRequest
-		}
-		tt := struct {
-			fields  fields
-			args    args
-			want    *evolvest.SetResponse
-			wantErr bool
-		}{
-			fields: fields{
-				store: mockStore,
-			},
-			args: args{
-				ctx: context.Background(),
-				request: &evolvest.SetRequest{
-					Key: "hello",
-					Val: []byte("world"),
-				},
-			},
-			want: &evolvest.SetResponse{
-				Key:      "hello",
-				ExistVal: true,
-				OldVal:   []byte("123"),
-				NewVal:   []byte("world"),
-			},
-			wantErr: false,
-		}
-
-		e := &EvolvestServer{
-			store: tt.fields.store,
-		}
-
-		mockStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return(store.DataItem{
-			Val: []byte("123"),
-			Ver: 123,
-		}, true).Times(1)
-
-		got, err := e.Set(tt.args.ctx, tt.args.request)
-		if (err != nil) != tt.wantErr {
-			t.Errorf("Set() error = %v, wantErr %v", err, tt.wantErr)
-			return
-		}
-		if !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("Set() got = %v, want %v", got, tt.want)
-		}
-	})
-
-}
 
 func TestGetEvolvestServer(t *testing.T) {
 	tests := []struct {
@@ -371,4 +47,157 @@ func TestNewEvolvestServer(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestEvolvestServer_Keys(t *testing.T) {
+	t.Run("pattern all", func(t *testing.T) {
+
+		controller := gomock.NewController(t)
+		defer controller.Finish()
+		mockStore := store.NewMockStore(controller)
+
+		type fields struct {
+			store store.Store
+		}
+		type args struct {
+			ctx     context.Context
+			request *evolvest.KeysRequest
+		}
+		tt := struct {
+			fields  fields
+			args    args
+			want    *evolvest.KeysResponse
+			wantErr bool
+		}{
+			fields: fields{
+				store: mockStore,
+			},
+			args: args{
+				ctx: context.Background(),
+				request: &evolvest.KeysRequest{
+					Pattern: ".*",
+				},
+			},
+			want: &evolvest.KeysResponse{
+				Keys: []string{"hello", "abc"},
+			},
+			wantErr: false,
+		}
+
+		e := &EvolvestServer{
+			store: tt.fields.store,
+		}
+
+		mockStore.EXPECT().Keys().Return([]string{"hello", "abc"}, nil).Times(1)
+
+		got, err := e.Keys(tt.args.ctx, tt.args.request)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("Keys() error = %v, wantErr %v", err, tt.wantErr)
+			return
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("Keys() got = %v, want %v", got, tt.want)
+		}
+	})
+
+	t.Run("pattern part", func(t *testing.T) {
+
+		controller := gomock.NewController(t)
+		defer controller.Finish()
+		mockStore := store.NewMockStore(controller)
+
+		type fields struct {
+			store store.Store
+		}
+		type args struct {
+			ctx     context.Context
+			request *evolvest.KeysRequest
+		}
+		tt := struct {
+			fields  fields
+			args    args
+			want    *evolvest.KeysResponse
+			wantErr bool
+		}{
+			fields: fields{
+				store: mockStore,
+			},
+			args: args{
+				ctx: context.Background(),
+				request: &evolvest.KeysRequest{
+					Pattern: "he.*",
+				},
+			},
+			want: &evolvest.KeysResponse{
+				Keys: []string{"hello", "hero"},
+			},
+			wantErr: false,
+		}
+
+		e := &EvolvestServer{
+			store: tt.fields.store,
+		}
+
+		mockStore.EXPECT().Keys().Return([]string{"hello", "abc", "", "hero"}, nil).Times(1)
+
+		got, err := e.Keys(tt.args.ctx, tt.args.request)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("Keys() error = %v, wantErr %v", err, tt.wantErr)
+			return
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("Keys() got = %v, want %v", got, tt.want)
+		}
+	})
+
+	t.Run("empty", func(t *testing.T) {
+
+		controller := gomock.NewController(t)
+		defer controller.Finish()
+		mockStore := store.NewMockStore(controller)
+
+		type fields struct {
+			store store.Store
+		}
+		type args struct {
+			ctx     context.Context
+			request *evolvest.KeysRequest
+		}
+		tt := struct {
+			fields  fields
+			args    args
+			want    *evolvest.KeysResponse
+			wantErr bool
+		}{
+			fields: fields{
+				store: mockStore,
+			},
+			args: args{
+				ctx: context.Background(),
+				request: &evolvest.KeysRequest{
+					Pattern: "he.*",
+				},
+			},
+			want: &evolvest.KeysResponse{
+				Keys: []string{},
+			},
+			wantErr: false,
+		}
+
+		e := &EvolvestServer{
+			store: tt.fields.store,
+		}
+
+		mockStore.EXPECT().Keys().Return([]string{"abc", "", "xyz"}, nil).Times(1)
+
+		got, err := e.Keys(tt.args.ctx, tt.args.request)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("Keys() error = %v, wantErr %v", err, tt.wantErr)
+			return
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("Keys() got = %v, want %v", got, tt.want)
+		}
+	})
+
 }

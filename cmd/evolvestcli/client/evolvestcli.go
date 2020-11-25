@@ -39,49 +39,25 @@ func StartClient(addr string) error {
 	return nil
 }
 
-func (e *EvolvestClient) Get(ctx context.Context, key string) (val string, err error) {
-	req := &evolvest.GetRequest{Key: key}
+func (e *EvolvestClient) Keys(ctx context.Context, pattern string) (keys string, err error) {
+	req := &evolvest.KeysRequest{Pattern: pattern}
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
-	resp, err := e.client.Get(ctx, req)
+	resp, err := e.client.Keys(ctx, req)
 	if err != nil {
 		return "", err
 	}
-	return string(resp.GetVal()), nil
+	return fmt.Sprintf("%v", resp.GetKeys()), nil
 
 }
 
-func (e *EvolvestClient) Set(ctx context.Context, key, val string) (err error) {
-	req := &evolvest.SetRequest{Key: key, Val: []byte(val)}
+func (e *EvolvestClient) Pull(ctx context.Context) (values string, err error) {
+	req := &evolvest.PullRequest{}
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
-	_, err = e.client.Set(ctx, req)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (e *EvolvestClient) Del(ctx context.Context, key string) (err error) {
-	req := &evolvest.DelRequest{Key: key}
-
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
-	defer cancel()
-	_, err = e.client.Del(ctx, req)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (e *EvolvestClient) Sync(ctx context.Context) (values string, err error) {
-	req := &evolvest.SyncRequest{}
-
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
-	defer cancel()
-	resp, err := e.client.Sync(ctx, req)
+	resp, err := e.client.Pull(ctx, req)
 	if err != nil {
 		return "", err
 	}

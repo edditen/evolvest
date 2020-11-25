@@ -16,10 +16,8 @@ func NewCompleter() *Completer {
 
 func (c *Completer) Complete(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
-		{Text: "set", Description: "<key> <value> 'Set key with value'"},
-		{Text: "get", Description: "<key> 'Get value of key'"},
-		{Text: "del", Description: "<key> 'Del value of key'"},
-		{Text: "sync", Description: "'Sync values'"},
+		{Text: "keys", Description: "<pattern> 'Keys of pattern'"},
+		{Text: "pull", Description: "'Pull values'"},
 		{Text: "push", Description: "<txid> <flag> <cmd> <key> [val] 'Push Command'"},
 		{Text: "exit", Description: "Exit the prompt"},
 	}

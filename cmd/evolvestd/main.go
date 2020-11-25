@@ -49,7 +49,7 @@ func startServer() {
 	store.Recover()
 
 	syncPort := ":" + config.Config().SyncPort
-	logger.Info("Sync server running, on listen %s", syncPort)
+	logger.Info("Pull server running, on listen %s", syncPort)
 	go func() {
 		if err := rpc.StartServer(syncPort); err != nil {
 			logger.Fatal("init server failed, %v", err)

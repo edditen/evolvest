@@ -9,6 +9,7 @@ import (
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"google.golang.org/grpc"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -47,62 +48,36 @@ func StartServer(port string) error {
 	return nil
 }
 
-func (e *EvolvestServer) Get(ctx context.Context, request *evolvest.GetRequest) (*evolvest.GetResponse, error) {
+func (e *EvolvestServer) Keys(ctx context.Context, request *evolvest.KeysRequest) (*evolvest.KeysResponse, error) {
 	log := logger.WithField("params", request).
 		WithField("ctx", ctx)
-	val, err := e.store.Get(request.GetKey())
-	log.WithField("val", val).WithError(err).Debug("request get")
+	pattern := request.GetPattern()
+	r, err := regexp.Compile(pattern)
 	if err != nil {
+		log.WithError(err).Warn("request keys")
 		return nil, err
 	}
-	return &evolvest.GetResponse{
-		Key: request.GetKey(),
-		Val: val.Val,
-	}, nil
-}
 
-func (e *EvolvestServer) Set(ctx context.Context, request *evolvest.SetRequest) (*evolvest.SetResponse, error) {
-	log := logger.WithField("params", request).
-		WithField("ctx", ctx)
-	oldVal, exists := e.store.Set(request.GetKey(), store.DataItem{
-		Val: request.GetVal(),
-		Ver: utils.CurrentMillis(),
-	})
-	log.WithField("oldVal", oldVal).
-		WithField("exists", exists).
-		Debug("request set")
-	if exists {
-		return &evolvest.SetResponse{
-			Key:      request.GetKey(),
-			ExistVal: true,
-			OldVal:   oldVal.Val,
-			NewVal:   request.GetVal(),
-		}, nil
-	}
-	return &evolvest.SetResponse{
-		Key:      request.GetKey(),
-		ExistVal: false,
-		NewVal:   request.GetVal(),
-	}, nil
-}
-
-func (e *EvolvestServer) Del(ctx context.Context, request *evolvest.DelRequest) (*evolvest.DelResponse, error) {
-	log := logger.WithField("params", request).
-		WithField("ctx", ctx)
-	oldVal, err := e.store.Del(request.GetKey(), utils.GenerateId())
-	log.WithField("oldVal", oldVal).
-		WithError(err).
-		Debug("request del")
+	allKeys, err := e.store.Keys()
+	log.WithField("keys", allKeys).WithError(err).Debug("request keys")
 	if err != nil {
+		log.WithError(err).Warn("request keys")
 		return nil, err
 	}
-	return &evolvest.DelResponse{
-		Key: request.GetKey(),
-		Val: oldVal.Val,
+
+	keys := make([]string, 0)
+	for _, key := range allKeys {
+		if r.MatchString(key) {
+			keys = append(keys, key)
+		}
+	}
+
+	return &evolvest.KeysResponse{
+		Keys: keys,
 	}, nil
 }
 
-func (e *EvolvestServer) Sync(ctx context.Context, request *evolvest.SyncRequest) (*evolvest.SyncResponse, error) {
+func (e *EvolvestServer) Pull(ctx context.Context, request *evolvest.PullRequest) (*evolvest.PullResponse, error) {
 	log := logger.WithField("params", request).
 		WithField("ctx", ctx)
 	values, err := e.store.Serialize()
@@ -112,7 +87,7 @@ func (e *EvolvestServer) Sync(ctx context.Context, request *evolvest.SyncRequest
 	if err != nil {
 		return nil, err
 	}
-	return &evolvest.SyncResponse{
+	return &evolvest.PullResponse{
 		Values: values,
 	}, nil
 }

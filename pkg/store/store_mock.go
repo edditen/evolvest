@@ -50,7 +50,7 @@ func (mr *MockStoreMockRecorder) Set(key, val interface{}) *gomock.Call {
 // Get mocks base method
 func (m *MockStore) Get(key string) (DataItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", key)
+	ret := m.ctrl.Call(m, "Keys", key)
 	ret0, _ := ret[0].(DataItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -59,7 +59,7 @@ func (m *MockStore) Get(key string) (DataItem, error) {
 // Get indicates an expected call of Get
 func (mr *MockStoreMockRecorder) Get(key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockStore)(nil).Get), key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Keys", reflect.TypeOf((*MockStore)(nil).Get), key)
 }
 
 // Del mocks base method
@@ -75,6 +75,21 @@ func (m *MockStore) Del(key string, ver int64) (DataItem, error) {
 func (mr *MockStoreMockRecorder) Del(key, ver interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Del", reflect.TypeOf((*MockStore)(nil).Del), key, ver)
+}
+
+// Keys mocks base method
+func (m *MockStore) Keys() ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Keys")
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Keys indicates an expected call of Keys
+func (mr *MockStoreMockRecorder) Keys() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Keys", reflect.TypeOf((*MockStore)(nil).Keys))
 }
 
 // Serialize mocks base method

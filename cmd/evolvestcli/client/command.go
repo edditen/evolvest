@@ -9,14 +9,12 @@ import (
 )
 
 const (
-	CmdGet  = "get"
-	CmdSet  = "set"
-	CmdDel  = "del"
-	CmdSync = "sync"
+	CmdKeys = "keys"
+	CmdPul  = "pull"
 	CmdPush = "push"
 )
 
-var commands = []string{CmdGet, CmdSet, CmdDel, CmdSync, CmdPush}
+var commands = []string{CmdKeys, CmdPul, CmdPush}
 
 type Command interface {
 	Execute(args ...string) (string, error)
@@ -24,20 +22,13 @@ type Command interface {
 
 func NewCommand(cmd string) (Command, error) {
 	switch cmd {
-	case CmdGet:
-		return &GetCommand{baseCommand{
+	case CmdKeys:
+		return &KeysCommand{baseCommand{
 			client: GetEvolvestClient(),
 		}}, nil
-	case CmdSet:
-		return &SetCommand{baseCommand{
-			client: GetEvolvestClient(),
-		}}, nil
-	case CmdDel:
-		return &DelCommand{baseCommand{
-			client: GetEvolvestClient(),
-		}}, nil
-	case CmdSync:
-		return &SyncCommand{baseCommand{
+
+	case CmdPul:
+		return &PullCommand{baseCommand{
 			client: GetEvolvestClient(),
 		}}, nil
 	case CmdPush:
@@ -91,63 +82,36 @@ type baseCommand struct {
 	client *EvolvestClient
 }
 
-type GetCommand struct {
+type KeysCommand struct {
 	baseCommand
 }
 
-func (c *GetCommand) Execute(args ...string) (string, error) {
+func (c *KeysCommand) Execute(args ...string) (string, error) {
+	var pattern string
 	if len(args) == 0 {
-		return "", fmt.Errorf("wrong format, missing key")
-	}
-	if len(args) > 1 {
+		pattern = ".*"
+	} else if len(args) == 1 {
+		pattern = args[0]
+	} else {
 		return "", fmt.Errorf("wrong format, have multiple keys")
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	return c.client.Get(ctx, args[0])
+	return c.client.Keys(ctx, pattern)
 }
 
-type SetCommand struct {
+type PullCommand struct {
 	baseCommand
 }
 
-func (c *SetCommand) Execute(args ...string) (string, error) {
-	if len(args) != 2 {
-		return "", fmt.Errorf("format wrong, must be as <key> <value>")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	return "ok", c.client.Set(ctx, args[0], args[1])
-}
-
-type DelCommand struct {
-	baseCommand
-}
-
-func (c *DelCommand) Execute(args ...string) (string, error) {
-	if len(args) == 0 {
-		return "", fmt.Errorf("wrong format, missing key")
-	}
-	if len(args) > 1 {
-		return "", fmt.Errorf("wrong format, have multiple keys")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	return "ok", c.client.Del(ctx, args[0])
-}
-
-type SyncCommand struct {
-	baseCommand
-}
-
-func (c *SyncCommand) Execute(args ...string) (string, error) {
+func (c *PullCommand) Execute(args ...string) (string, error) {
 	if len(args) != 0 {
 		return "", fmt.Errorf("wrong format, no required parameters")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	return c.client.Sync(ctx)
+	return c.client.Pull(ctx)
 }
 
 type PushCommand struct {

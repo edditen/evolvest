@@ -23,6 +23,8 @@ type Store interface {
 	Get(key string) (val DataItem, err error)
 	// Del value of key, and return value
 	Del(key string, ver int64) (val DataItem, err error)
+	// Keys return all keys
+	Keys() (keys []string, err error)
 	// Serialize current data
 	Serialize() (data []byte, err error)
 	// Deserialize data to current state
@@ -83,6 +85,14 @@ func (e *Evolvest) Del(key string, ver int64) (val DataItem, err error) {
 		return val, nil
 	}
 	return DataItem{}, fmt.Errorf("key %s not exists", key)
+}
+
+func (e *Evolvest) Keys() (keys []string, err error) {
+	keys = make([]string, 0, len(e.Nodes))
+	for k := range e.Nodes {
+		keys = append(keys, k)
+	}
+	return keys, nil
 }
 
 func (e *Evolvest) Serialize() (data []byte, err error) {
