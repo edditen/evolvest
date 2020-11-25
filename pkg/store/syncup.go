@@ -162,7 +162,9 @@ func (e *EvolvestClient) Process() {
 
 			}
 			resetRetryCount()
-			log.WithField("response", resp).Debug("push to remote success")
+			log.WithField("remote_addr", e.addr).
+				WithField("response", resp).
+				Debug("push to remote success")
 		}
 	}()
 }
