@@ -49,8 +49,7 @@ func StartServer(port string) error {
 }
 
 func (e *EvolvestServer) Keys(ctx context.Context, request *evolvest.KeysRequest) (*evolvest.KeysResponse, error) {
-	log := logger.WithField("params", request).
-		WithField("ctx", ctx)
+	log := logger.WithField("ctx", ctx).WithField("params", request)
 	pattern := request.GetPattern()
 	r, err := regexp.Compile(pattern)
 	if err != nil {
@@ -78,12 +77,11 @@ func (e *EvolvestServer) Keys(ctx context.Context, request *evolvest.KeysRequest
 }
 
 func (e *EvolvestServer) Pull(ctx context.Context, request *evolvest.PullRequest) (*evolvest.PullResponse, error) {
-	log := logger.WithField("params", request).
-		WithField("ctx", ctx)
+	log := logger.WithField("ctx", ctx).WithField("params", request)
 	values, err := e.store.Serialize()
 	log.WithField("values", values).
 		WithError(err).
-		Debug("request sync")
+		Debug("request pull")
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +91,8 @@ func (e *EvolvestServer) Pull(ctx context.Context, request *evolvest.PullRequest
 }
 
 func (e *EvolvestServer) Push(ctx context.Context, request *evolvest.PushRequest) (*evolvest.PushResponse, error) {
-	logger.WithField("params", request).
-		WithField("ctx", ctx).Debug("access")
+	logger.WithField("ctx", ctx).WithField("params", request).
+		Debug("request push")
 	for _, req := range request.TxCmds {
 		if txReq := parseCmd(req); txReq != nil {
 			store.Submit(txReq)
