@@ -105,7 +105,7 @@ func (e *EvolvestServer) Push(ctx context.Context, request *evolvest.PushRequest
 
 func parseCmd(cmdText string) *common.TxRequest {
 	log := logger.WithField("cmdText", cmdText)
-	texts := strings.Split(cmdText, " ")
+	texts := strings.Fields(strings.TrimSpace(cmdText))
 	if len(texts) < 4 {
 		log.Warn("parse cmd error, missing required")
 		return nil

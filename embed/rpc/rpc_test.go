@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
+	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"github.com/golang/mock/gomock"
 	"reflect"
@@ -200,4 +201,110 @@ func TestEvolvestServer_Keys(t *testing.T) {
 		}
 	})
 
+}
+
+func Test_parseCmd(t *testing.T) {
+	type args struct {
+		cmdText string
+	}
+	tests := []struct {
+		name string
+		args args
+		want *common.TxRequest
+	}{
+		{
+			name: "sync",
+			args: args{
+				cmdText: "123  sync set hello d29ybGQ=",
+			},
+			want: &common.TxRequest{
+				TxId:   int64(123),
+				Flag:   common.FlagSync,
+				Action: common.SET,
+				Key:    "hello",
+				Val:    []byte("world"),
+			},
+		},
+		{
+			name: "req",
+			args: args{
+				cmdText: "123 req set hello d29ybGQ=",
+			},
+			want: &common.TxRequest{
+				TxId:   int64(123),
+				Flag:   common.FlagSync,
+				Action: common.SET,
+				Key:    "hello",
+				Val:    []byte("world"),
+			},
+		},
+		{
+			name: "non val",
+			args: args{
+				cmdText: "123 sync set hello",
+			},
+			want: &common.TxRequest{
+				TxId:   int64(123),
+				Flag:   common.FlagSync,
+				Action: common.SET,
+				Key:    "hello",
+				Val:    []byte{},
+			},
+		},
+		{
+			name: "multiple values",
+			args: args{
+				cmdText: "123 sync set hello world world2",
+			},
+			want: nil,
+		},
+		{
+			name: "wrong format",
+			args: args{
+				cmdText: "123 sync set hello world",
+			},
+			want: nil,
+		},
+		{
+			name: "missing required",
+			args: args{
+				cmdText: "123 sync set",
+			},
+			want: nil,
+		},
+		{
+			name: "del",
+			args: args{
+				cmdText: "123 sync del hello ",
+			},
+			want: &common.TxRequest{
+				TxId:   int64(123),
+				Flag:   common.FlagSync,
+				Action: common.DEL,
+				Key:    "hello",
+				Val:    nil,
+			},
+		},
+		{
+			name: "command not support",
+			args: args{
+				cmdText: "123 sync get hello ",
+			},
+			want: nil,
+		},
+		{
+			name: "can not convert",
+			args: args{
+				cmdText: "abc sync del hello ",
+			},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := parseCmd(tt.args.cmdText); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("parseCmd() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
