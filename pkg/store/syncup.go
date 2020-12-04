@@ -134,6 +134,22 @@ func (e *EvolvestClient) Push(pushText string) {
 	e.pushChan <- pushText
 }
 
+func (e *EvolvestClient) Pull() ([]byte, error) {
+	resp, err := CallGrpcWithTimeout(func(ctx context.Context) (interface{}, error) {
+		return e.client.Pull(ctx, &evolvest.PullRequest{})
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	pullResp, ok := resp.(*evolvest.PullResponse)
+	if !ok {
+		return nil, fmt.Errorf("type convert error")
+	}
+	return pullResp.Values, nil
+
+}
+
 func (e *EvolvestClient) Process() {
 	go func() {
 		for {

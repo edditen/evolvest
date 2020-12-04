@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
 	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/common/logger"
@@ -78,16 +79,41 @@ func (e *EvolvestServer) Keys(ctx context.Context, request *evolvest.KeysRequest
 
 func (e *EvolvestServer) Pull(ctx context.Context, request *evolvest.PullRequest) (*evolvest.PullResponse, error) {
 	log := logger.WithField("ctx", ctx).WithField("params", request)
-	values, err := e.store.Serialize()
-	log.WithField("values", values).
-		WithError(err).
-		Debug("request pull")
+	keys, err := e.store.Keys()
+
 	if err != nil {
+		log.WithError(err).Warn("get keys error")
 		return nil, err
 	}
+
+	values, err := valuesByKeys(keys, e.store)
+	if err != nil {
+		log.WithError(err).Warn("get values error")
+		return nil, err
+	}
+	data, err := json.Marshal(values)
+	if err != nil {
+		log.WithError(err).Warn("convert to json error")
+		return nil, err
+	}
+
+	log.WithField("values", values).Debug("Pull request")
+
 	return &evolvest.PullResponse{
-		Values: values,
+		Values: data,
 	}, nil
+}
+
+func valuesByKeys(keys []string, s store.Store) (vals map[string]store.DataItem, err error) {
+	vals = make(map[string]store.DataItem, 0)
+	for _, key := range keys {
+		val, err := s.Get(key)
+		if err != nil {
+			return nil, err
+		}
+		vals[key] = val
+	}
+	return vals, nil
 }
 
 func (e *EvolvestServer) Push(ctx context.Context, request *evolvest.PushRequest) (*evolvest.PushResponse, error) {

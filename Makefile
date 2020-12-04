@@ -59,8 +59,8 @@ docker-run:
 
 .PHONY: docker-clean
 docker-clean:
-	@docker images -a | grep evolvestd | awk '{print $3}'
-	# docker images -a | egrep  "evolvestd|<none>" | awk '{print $3}'
+	@docker images -a | egrep  "evolvestd|<none>" | awk '{print $3}'
+	./scripts/clean_docker.sh
 	# docker rmi -f $(docker images -a | egrep  "evolvestd|<none>" | awk '{print $3}')
 
 .PHONY: docker-logs
@@ -69,7 +69,7 @@ docker-logs:
 
 .PHONY: up
 up:
-	@docker-compose up -d
+	@docker-compose up --build -d
 
 .PHONY: down
 down:
