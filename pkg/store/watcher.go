@@ -13,19 +13,9 @@ type Watcher struct {
 	chMap map[string][]chan Notification
 }
 
-var watcher *Watcher
-
-func init() {
-	watcher = NewWatcher()
-}
-
-func GetWatcher() *Watcher {
-	return watcher
-}
-
 func NewWatcher() *Watcher {
 	return &Watcher{
-		chMap: make(map[string][]chan Notification),
+		chMap: make(map[string][]chan Notification, 0),
 	}
 }
 

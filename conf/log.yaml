@@ -1,0 +1,48 @@
+level: debug
+handlers:
+  - type: std
+    levels:
+      - debug
+      - info
+      - error
+    message:
+      format: simple
+
+  - type: file
+    levels:
+      - debug
+      - info
+      - data
+      - warn
+      - error
+      - fatal
+    file: log/evolvestd.log
+    rollover:
+      rollover_interval: 1d
+      rollover_size: 100M
+      backup_count: 15
+      backup_time: 7d
+    sync:
+      async_write: true
+      flush_interval: 100
+      queue_size: 8192
+    message:
+      format: full
+
+  - type: file
+    marker: data
+    levels:
+      - data
+    file: log/data.log
+    rollover:
+      rollover_interval: 1d
+      rollover_size: 100M
+      backup_count: 30
+      backup_time: 7d
+    sync:
+      async_write: true
+      flush_interval: 100
+      flush_size: 256
+      queue_size: 8192
+    message:
+      format: full

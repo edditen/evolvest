@@ -26,7 +26,7 @@ clean:
 
 .PHONY: run
 run:
-	$(BUILD_PATH)/evolvestd -v -c $(CFG_FILE)
+	$(BUILD_PATH)/evolvestd server
 
 
 .PHONY: fmt

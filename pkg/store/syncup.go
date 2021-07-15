@@ -3,11 +3,12 @@ package store
 import (
 	"context"
 	"fmt"
+	"github.com/EdgarTeng/etlog"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
 	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/common/config"
-	"github.com/EdgarTeng/evolvest/pkg/common/logger"
 	"github.com/EdgarTeng/evolvest/pkg/common/utils"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"os"
 	"path"
@@ -15,89 +16,103 @@ import (
 	"time"
 )
 
-var (
-	reqChan         chan *common.TxRequest
-	fileWriter      *os.File
-	evolvestClients []*EvolvestClient
-)
-
-func init() {
-	reqChan = make(chan *common.TxRequest, 1000)
-	evolvestClients = make([]*EvolvestClient, 0)
+type Syncer struct {
+	conf    *config.Config
+	reqC    chan *common.TxRequest
+	writer  *os.File
+	clients []*EvolvestClient
+	Store   Store
 }
 
-func InitSyncUp() {
-	dataDir := config.Config().DataDir
-	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
-		logger.Warn("mkdir error, %v", err)
+func NewSyncer(conf *config.Config, store Store) *Syncer {
+	return &Syncer{
+		conf:    conf,
+		Store:   store,
+		reqC:    make(chan *common.TxRequest, 1000),
+		clients: make([]*EvolvestClient, 0),
 	}
+}
 
+func (s *Syncer) Init() error {
+	dataDir := s.conf.DataDir
+	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
+		return errors.Wrap(err, "init syncUp error")
+	}
 	filename := path.Join(dataDir, common.FileTx)
 	f, err := os.OpenFile(filename,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		logger.WithError(err).Fatal("open tx file failed")
+		return errors.Wrap(err, "open tx file failed")
 	}
-	fileWriter = f
-	Process()
+	s.writer = f
+	return nil
+}
+
+func (s *Syncer) Run() error {
+	s.Process()
 
 	// clients
 	servAddrs := os.Getenv(common.EnvAddrs)
-	logger.WithField(common.EnvAddrs, servAddrs).Info("env")
+	etlog.Log.WithField(common.EnvAddrs, servAddrs).Info("env")
 	if servAddrs != "" {
 		addrs := strings.Split(servAddrs, ",")
 		for _, addr := range addrs {
 			client := NewEvolvestClient(addr)
 			client.StartClient()
-			evolvestClients = append(evolvestClients, client)
+			s.clients = append(s.clients, client)
 		}
 	}
 
+	return nil
+
 }
 
-func Submit(req *common.TxRequest) {
-	reqChan <- req
+func (s *Syncer) Shutdown() {
 }
 
-func Process() {
+func (s *Syncer) Submit(req *common.TxRequest) {
+	s.reqC <- req
+}
+
+func (s *Syncer) Process() {
 	go func() {
 		for {
-			req := <-reqChan
-			setToStore(req)
-			appendTxFile(req)
+			req := <-s.reqC
+			s.setToStore(req)
+			s.appendTxFile(req)
 			if req.Flag == common.FlagReq {
-				go pushToRemote(req)
+				go s.pushToRemote(req)
 			}
 		}
 	}()
 }
 
-func setToStore(req *common.TxRequest) {
+func (s *Syncer) setToStore(req *common.TxRequest) {
 	switch req.Action {
 	case common.SET:
-		GetStore().Set(req.Key, DataItem{
+		s.Store.Set(req.Key, DataItem{
 			Val: req.Val,
 			Ver: req.TxId,
 		})
 	case common.DEL:
-		GetStore().Del(req.Key, req.TxId)
+		s.Store.Del(req.Key, req.TxId)
 	}
 }
 
-func appendTxFile(req *common.TxRequest) {
+func (s *Syncer) appendTxFile(req *common.TxRequest) {
 	text := fmt.Sprintf("%d %s %s %s %s\n",
 		req.TxId, req.Flag, req.Action, req.Key, utils.Base64Encode(req.Val))
-	if _, err := fileWriter.WriteString(text); err != nil {
-		logger.WithError(err).
+	if _, err := s.writer.WriteString(text); err != nil {
+		etlog.Log.WithError(err).
 			WithField("text", text).
 			Warn("append text to tx file failed")
 	}
 }
 
-func pushToRemote(req *common.TxRequest) {
+func (s *Syncer) pushToRemote(req *common.TxRequest) {
 	text := fmt.Sprintf("%d %s %s %s %s",
 		req.TxId, common.FlagSync, req.Action, req.Key, utils.Base64Encode(req.Val))
-	for _, cli := range evolvestClients {
+	for _, cli := range s.clients {
 		if cli != nil {
 			cli.Push(text)
 		}
@@ -117,26 +132,26 @@ func NewEvolvestClient(addr string) *EvolvestClient {
 	}
 }
 
-func (e *EvolvestClient) StartClient() error {
+func (ec *EvolvestClient) StartClient() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	logger.Info("connecting to %s", e.addr)
-	conn, err := grpc.DialContext(ctx, e.addr, grpc.WithInsecure())
+	etlog.Log.WithField("addr", ec.addr).Info("connecting")
+	conn, err := grpc.DialContext(ctx, ec.addr, grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
-	e.client = evolvest.NewEvolvestServiceClient(conn)
-	e.Process()
+	ec.client = evolvest.NewEvolvestServiceClient(conn)
+	ec.Process()
 	return nil
 }
 
-func (e *EvolvestClient) Push(pushText string) {
-	e.pushChan <- pushText
+func (ec *EvolvestClient) Push(pushText string) {
+	ec.pushChan <- pushText
 }
 
-func (e *EvolvestClient) Pull() ([]byte, error) {
+func (ec *EvolvestClient) Pull() ([]byte, error) {
 	resp, err := CallGrpcWithTimeout(func(ctx context.Context) (interface{}, error) {
-		return e.client.Pull(ctx, &evolvest.PullRequest{})
+		return ec.client.Pull(ctx, &evolvest.PullRequest{})
 	})
 	if err != nil {
 		return nil, err
@@ -150,10 +165,10 @@ func (e *EvolvestClient) Pull() ([]byte, error) {
 
 }
 
-func (e *EvolvestClient) Process() {
+func (ec *EvolvestClient) Process() {
 	go func() {
 		for {
-			items := aggr(e.pushChan, 20, 50)
+			items := ec.aggr(ec.pushChan, 20, 50)
 			if len(items) == 0 {
 				time.Sleep(time.Second)
 				continue
@@ -163,13 +178,13 @@ func (e *EvolvestClient) Process() {
 			}
 
 			resp, err := CallGrpcWithTimeout(func(ctx context.Context) (interface{}, error) {
-				return e.client.Push(ctx, req)
+				return ec.client.Push(ctx, req)
 			})
 
-			log := logger.WithField("commands", req.TxCmds)
+			log := etlog.Log.WithField("commands", req.TxCmds)
 			if err != nil {
 				log = log.WithError(err)
-				if retry(e.pushChan, req.TxCmds) {
+				if retry(ec.pushChan, req.TxCmds) {
 					log.Warn("push tx request to remote failed, reaches max retry times, abandon")
 				} else {
 					log.Info("push tx request to remote failed, retry")
@@ -178,14 +193,14 @@ func (e *EvolvestClient) Process() {
 
 			}
 			resetRetryCount()
-			log.WithField("remote_addr", e.addr).
+			log.WithField("remote_addr", ec.addr).
 				WithField("response", resp).
 				Debug("push to remote success")
 		}
 	}()
 }
 
-func aggr(ch <-chan string, maxCount int, maxWaitMillis int64) []string {
+func (ec *EvolvestClient) aggr(ch <-chan string, maxCount int, maxWaitMillis int64) []string {
 	items := make([]string, 0)
 	timeout := time.Duration(maxWaitMillis) * time.Millisecond
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)

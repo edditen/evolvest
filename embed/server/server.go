@@ -3,8 +3,11 @@ package server
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/EdgarTeng/evolvest/pkg/common/logger"
+	"github.com/EdgarTeng/etlog"
+	"github.com/EdgarTeng/evolvest/pkg/common/config"
+	"github.com/EdgarTeng/evolvest/pkg/store"
 	"io"
+	"log"
 	"net"
 	"sync"
 )
@@ -348,10 +351,27 @@ func handle(s *Server, c *conn) {
 	}()
 }
 
-func StartServer(addr string) error {
-	logger.Info("started server at %s", addr)
+type EvolvestServer struct {
+	conf   *config.Config
+	syncer *store.Syncer
+}
 
-	handler := NewHandler()
+func NewEvolvestServer(conf *config.Config, syncer *store.Syncer) *EvolvestServer {
+	return &EvolvestServer{
+		conf:   conf,
+		syncer: syncer,
+	}
+}
+
+func (s *EvolvestServer) Init() error {
+	return nil
+}
+
+func (s *EvolvestServer) Run() error {
+	addr := s.conf.Host + ":" + s.conf.ServerPort
+	log.Println("listen server at", addr)
+
+	handler := NewHandler(s.syncer)
 
 	mux := NewServeMux()
 	mux.HandleFunc("detach", handler.detach)
@@ -366,17 +386,20 @@ func StartServer(addr string) error {
 		func(conn Conn) bool {
 			// use this function to accept or deny the connection.
 			// log.Printf("accept: %s", conn.RemoteAddr())
-			logger.Info("accept: %s", conn.RemoteAddr())
+			etlog.Log.WithField("addr", conn.RemoteAddr()).Info("accept conn")
 			return true
 		},
 		func(conn Conn, err error) {
 			// this is called when the connection has been closed
 			// log.Printf("closed: %s, err: %v", conn.RemoteAddr(), err)
-			logger.Info("closed: %s, err: %v", conn.RemoteAddr(), err)
+			etlog.Log.WithField("addr", conn.RemoteAddr()).Warn("close conn error")
 		},
 	)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (s *EvolvestServer) Shutdown() {
 }

@@ -3,9 +3,9 @@ package store
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/EdgarTeng/etlog"
 	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/common/config"
-	"github.com/EdgarTeng/evolvest/pkg/common/logger"
 	"io/ioutil"
 	"os"
 	"path"
@@ -27,38 +27,34 @@ type Store interface {
 	Keys() (keys []string, err error)
 	// Serialize current data
 	Serialize() (data []byte, err error)
-	// Deserialize data to current state
+	// Load data to current state
 	Load(data []byte) (err error)
 }
 
-type Evolvest struct {
-	Nodes map[string]DataItem `json:"nodes"`
+type Storage struct {
+	conf    *config.Config
+	Nodes   map[string]DataItem `json:"nodes"`
+	watcher *Watcher
 }
 
-var store Store
-
-func init() {
-	store = NewEvolvest()
+func NewStorage(conf *config.Config, watcher *Watcher) *Storage {
+	return &Storage{
+		conf:    conf,
+		watcher: watcher,
+		Nodes:   make(map[string]DataItem, 17),
+	}
 }
 
-func GetStore() Store {
-	return store
-}
-
-func NewEvolvest() *Evolvest {
-	return &Evolvest{Nodes: make(map[string]DataItem, 17)}
-}
-
-func (e *Evolvest) Set(key string, val DataItem) (oldVal DataItem, exist bool) {
-	oldVal, ok := e.Nodes[key]
+func (s *Storage) Set(key string, val DataItem) (oldVal DataItem, exist bool) {
+	oldVal, ok := s.Nodes[key]
 	if ok && val.Ver < oldVal.Ver {
 		// exist key, compare with the original one
 		return oldVal, true
 	}
-	e.Nodes[key] = val
+	s.Nodes[key] = val
 
 	defer func() {
-		_ = GetWatcher().Notify(common.SET, key, oldVal, val)
+		_ = s.watcher.Notify(common.SET, key, oldVal, val)
 	}()
 
 	if ok {
@@ -68,76 +64,76 @@ func (e *Evolvest) Set(key string, val DataItem) (oldVal DataItem, exist bool) {
 	return DataItem{}, false
 }
 
-func (e *Evolvest) Get(key string) (val DataItem, err error) {
-	if val, ok := e.Nodes[key]; ok {
+func (s *Storage) Get(key string) (val DataItem, err error) {
+	if val, ok := s.Nodes[key]; ok {
 		return val, nil
 	}
 	return DataItem{}, fmt.Errorf("key %s not exists", key)
 }
 
-func (e *Evolvest) Del(key string, ver int64) (val DataItem, err error) {
-	if val, ok := e.Nodes[key]; ok {
+func (s *Storage) Del(key string, ver int64) (val DataItem, err error) {
+	if val, ok := s.Nodes[key]; ok {
 		if ver < val.Ver {
-			return DataItem{}, fmt.Errorf("ver %d is less than store", ver)
+			return DataItem{}, fmt.Errorf("ver %d is less than Store", ver)
 		}
-		delete(e.Nodes, key)
-		_ = GetWatcher().Notify(common.DEL, key, val, DataItem{})
+		delete(s.Nodes, key)
+		_ = s.watcher.Notify(common.DEL, key, val, DataItem{})
 		return val, nil
 	}
 	return DataItem{}, fmt.Errorf("key %s not exists", key)
 }
 
-func (e *Evolvest) Keys() (keys []string, err error) {
-	keys = make([]string, 0, len(e.Nodes))
-	for k := range e.Nodes {
+func (s *Storage) Keys() (keys []string, err error) {
+	keys = make([]string, 0, len(s.Nodes))
+	for k := range s.Nodes {
 		keys = append(keys, k)
 	}
 	return keys, nil
 }
 
-func (e *Evolvest) Serialize() (data []byte, err error) {
-	data, err = json.Marshal(e)
+func (s *Storage) Serialize() (data []byte, err error) {
+	data, err = json.Marshal(s)
 	return
 }
 
-func (e *Evolvest) Load(data []byte) (err error) {
-	err = json.Unmarshal(data, e)
+func (s *Storage) Load(data []byte) (err error) {
+	err = json.Unmarshal(data, s)
 	return
 }
 
-func Persistent() {
-	data, err := GetStore().Serialize()
+func (s *Storage) Persistent() {
+	data, err := s.Serialize()
 	if err != nil {
-		logger.Warn("save data error, %v", err)
+		etlog.Log.WithError(err).Warn("save data error")
 		return
 	}
 
-	dataDir := config.Config().DataDir
+	dataDir := s.conf.DataDir
 	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
-		logger.Warn("mkdir error, %v", err)
+		etlog.Log.WithError(err).Warn("mkdir error")
 	}
 
 	filename := path.Join(dataDir, common.FileSnapshot)
 	err = ioutil.WriteFile(filename, data, 0644)
 	if err != nil {
-		logger.Warn("write data to file error, %v", err)
+		etlog.Log.WithError(err).Warn("write data to file error")
 		return
 	}
-	logger.Info("write snapshot success!")
+	etlog.Log.Info("write snapshot success!")
 }
 
-func Recover() {
-	filename := path.Join(config.Config().DataDir, common.FileSnapshot)
+func (s *Storage) Recover() {
+	filename := path.Join(s.conf.DataDir, common.FileSnapshot)
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		logger.Warn("read data from file error, %v", err)
+		etlog.Log.WithError(err).Warn("read data from file error")
 		return
 	}
-	err = GetStore().Load(data)
+	err = s.Load(data)
 	if err != nil {
-		logger.Warn("load data to store error, %v", err)
+		etlog.Log.WithError(err).Warn("load data to Store error")
 		return
 	}
 
-	logger.Info("recover data from snapshot success!")
+	etlog.Log.Info("recover data from snapshot success!")
 }
