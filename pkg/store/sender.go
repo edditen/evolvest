@@ -66,15 +66,19 @@ func (ts *TxSender) Shutdown() {
 }
 
 type EvolvestClient struct {
-	addr     string
-	client   evolvest.EvolvestServiceClient
-	pushChan chan string
+	addr        string
+	client      evolvest.EvolvestServiceClient
+	reqC        chan string
+	sleepSecs   int
+	maxInterval int
 }
 
 func NewEvolvestClient(addr string) *EvolvestClient {
 	return &EvolvestClient{
-		addr:     addr,
-		pushChan: make(chan string, 100),
+		addr:        addr,
+		reqC:        make(chan string, 100),
+		sleepSecs:   1,
+		maxInterval: 1024,
 	}
 }
 
@@ -92,11 +96,11 @@ func (ec *EvolvestClient) StartClient() error {
 }
 
 func (ec *EvolvestClient) Push(pushText string) {
-	ec.pushChan <- pushText
+	ec.reqC <- pushText
 }
 
 func (ec *EvolvestClient) Pull() ([]byte, error) {
-	resp, err := CallGrpcWithTimeout(func(ctx context.Context) (interface{}, error) {
+	resp, err := ec.CallGrpcWithTimeout(func(ctx context.Context) (interface{}, error) {
 		return ec.client.Pull(ctx, &evolvest.PullRequest{})
 	})
 	if err != nil {
@@ -114,7 +118,7 @@ func (ec *EvolvestClient) Pull() ([]byte, error) {
 func (ec *EvolvestClient) Process() {
 	go func() {
 		for {
-			items := ec.aggr(ec.pushChan, 20, 50)
+			items := ec.aggr(ec.reqC, 20, 50)
 			if len(items) == 0 {
 				time.Sleep(time.Second)
 				continue
@@ -123,14 +127,14 @@ func (ec *EvolvestClient) Process() {
 				TxCmds: items,
 			}
 
-			resp, err := CallGrpcWithTimeout(func(ctx context.Context) (interface{}, error) {
+			resp, err := ec.CallGrpcWithTimeout(func(ctx context.Context) (interface{}, error) {
 				return ec.client.Push(ctx, req)
 			})
 
 			log := etlog.Log.WithField("commands", req.TxCmds)
 			if err != nil {
 				log = log.WithError(err)
-				if retry(ec.pushChan, req.TxCmds) {
+				if ec.retry(ec.reqC, req.TxCmds) {
 					log.Warn("push tx request to remote failed, reaches max retry times, abandon")
 				} else {
 					log.Info("push tx request to remote failed, retry")
@@ -138,7 +142,7 @@ func (ec *EvolvestClient) Process() {
 				continue
 
 			}
-			resetRetryCount()
+			ec.resetRetryCount()
 			log.WithField("remote_addr", ec.addr).
 				WithField("response", resp).
 				Debug("push to remote success")
@@ -164,33 +168,28 @@ func (ec *EvolvestClient) aggr(ch <-chan string, maxCount int, maxWaitMillis int
 
 }
 
-var (
-	sleepSecs   = 1
-	maxInterval = 1024
-)
-
-func retry(ch chan<- string, items []string) (reachLimit bool) {
-	if sleepSecs > maxInterval {
+func (ec *EvolvestClient) retry(ch chan<- string, items []string) (reachLimit bool) {
+	if ec.sleepSecs > ec.maxInterval {
 		return true
 	}
 
 	go func() {
-		time.Sleep(time.Duration(sleepSecs) * time.Second)
+		time.Sleep(time.Duration(ec.sleepSecs) * time.Second)
 		for _, item := range items {
 			ch <- item
 		}
 
-		sleepSecs *= 2
+		ec.sleepSecs *= 2
 
 	}()
 	return false
 }
 
-func resetRetryCount() {
-	sleepSecs = 1
+func (ec *EvolvestClient) resetRetryCount() {
+	ec.sleepSecs = 1
 }
 
-func CallGrpcWithTimeout(fn func(ctx context.Context) (interface{}, error)) (interface{}, error) {
+func (ec *EvolvestClient) CallGrpcWithTimeout(fn func(ctx context.Context) (interface{}, error)) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	return fn(ctx)

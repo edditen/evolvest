@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/common/config"
 )
@@ -65,8 +66,13 @@ func (s *Syncer) Shutdown() {
 	close(s.shutdown)
 }
 
-func (s *Syncer) Submit(req *common.TxRequest) {
-	s.reqC <- req
+func (s *Syncer) Submit(req *common.TxRequest) error {
+	select {
+	case s.reqC <- req:
+		return nil
+	default:
+		return errors.New("tx chan is full or off")
+	}
 }
 
 func (s *Syncer) setToStore(req *common.TxRequest) {
