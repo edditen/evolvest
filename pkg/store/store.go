@@ -6,6 +6,7 @@ import (
 	"github.com/EdgarTeng/etlog"
 	"github.com/EdgarTeng/evolvest/pkg/common"
 	"github.com/EdgarTeng/evolvest/pkg/common/config"
+	"github.com/EdgarTeng/evolvest/pkg/runnable"
 	"io/ioutil"
 	"os"
 	"path"
@@ -17,6 +18,7 @@ type DataItem struct {
 }
 
 type Store interface {
+	runnable.Runnable
 	// Set new value, return old value if existed
 	Set(key string, val DataItem) (oldVal DataItem, exist bool)
 	// Get value of key
@@ -32,17 +34,28 @@ type Store interface {
 }
 
 type Storage struct {
-	conf    *config.Config
-	Nodes   map[string]DataItem `json:"nodes"`
-	watcher *Watcher
+	cfg   *config.Config
+	Nodes map[string]DataItem `json:"nodes"`
+	w     *Watcher
 }
 
-func NewStorage(conf *config.Config, watcher *Watcher) *Storage {
+func NewStorage(conf *config.Config) *Storage {
 	return &Storage{
-		conf:    conf,
-		watcher: watcher,
-		Nodes:   make(map[string]DataItem, 17),
+		cfg:   conf,
+		w:     NewWatcher(),
+		Nodes: make(map[string]DataItem, 17),
 	}
+}
+
+func (s *Storage) Init() error {
+	return nil
+}
+
+func (s *Storage) Run() error {
+	return nil
+}
+
+func (s *Storage) Shutdown() {
 }
 
 func (s *Storage) Set(key string, val DataItem) (oldVal DataItem, exist bool) {
@@ -54,7 +67,7 @@ func (s *Storage) Set(key string, val DataItem) (oldVal DataItem, exist bool) {
 	s.Nodes[key] = val
 
 	defer func() {
-		_ = s.watcher.Notify(common.SET, key, oldVal, val)
+		_ = s.w.Notify(common.SET, key, oldVal, val)
 	}()
 
 	if ok {
@@ -77,7 +90,7 @@ func (s *Storage) Del(key string, ver int64) (val DataItem, err error) {
 			return DataItem{}, fmt.Errorf("ver %d is less than Store", ver)
 		}
 		delete(s.Nodes, key)
-		_ = s.watcher.Notify(common.DEL, key, val, DataItem{})
+		_ = s.w.Notify(common.DEL, key, val, DataItem{})
 		return val, nil
 	}
 	return DataItem{}, fmt.Errorf("key %s not exists", key)
@@ -108,7 +121,7 @@ func (s *Storage) Persistent() {
 		return
 	}
 
-	dataDir := s.conf.DataDir
+	dataDir := s.cfg.DataDir
 	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
 		etlog.Log.WithError(err).Warn("mkdir error")
 	}
@@ -123,7 +136,7 @@ func (s *Storage) Persistent() {
 }
 
 func (s *Storage) Recover() {
-	filename := path.Join(s.conf.DataDir, common.FileSnapshot)
+	filename := path.Join(s.cfg.DataDir, common.FileSnapshot)
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		etlog.Log.WithError(err).Warn("read data from file error")

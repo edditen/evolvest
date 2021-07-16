@@ -352,13 +352,13 @@ func handle(s *Server, c *conn) {
 }
 
 type EvolvestServer struct {
-	conf   *config.Config
+	cfg    *config.Config
 	syncer *store.Syncer
 }
 
 func NewEvolvestServer(conf *config.Config, syncer *store.Syncer) *EvolvestServer {
 	return &EvolvestServer{
-		conf:   conf,
+		cfg:    conf,
 		syncer: syncer,
 	}
 }
@@ -368,7 +368,7 @@ func (s *EvolvestServer) Init() error {
 }
 
 func (s *EvolvestServer) Run() error {
-	addr := s.conf.Host + ":" + s.conf.ServerPort
+	addr := s.cfg.Host + ":" + s.cfg.ServerPort
 	log.Println("listen server at", addr)
 
 	handler := NewHandler(s.syncer)

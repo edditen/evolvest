@@ -33,10 +33,8 @@ func (w *Watcher) Add(key string, fn NotifyFunc) error {
 }
 
 func (w *Watcher) Notify(action string, key string, oldVal, newVal DataItem) error {
-
 	chans, ok := w.chMap[key]
 	if ok {
-
 		n := Notification{
 			action: action,
 			key:    key,

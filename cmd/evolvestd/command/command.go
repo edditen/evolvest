@@ -15,8 +15,6 @@ import (
 
 type Evolvestd struct {
 	config         *config.Config
-	watcher        *store.Watcher
-	storage        store.Store
 	syncer         *store.Syncer
 	syncServer     *rpc.SyncServer
 	evolvestServer *server.EvolvestServer
@@ -38,9 +36,7 @@ func (e *Evolvestd) Init() (err error) {
 		return errors.Wrap(err, "init config error")
 	}
 
-	e.watcher = store.NewWatcher()
-	e.storage = store.NewStorage(e.config, e.watcher)
-	e.syncer = store.NewSyncer(e.config, e.storage)
+	e.syncer = store.NewSyncer(e.config)
 	if err = e.syncer.Init(); err != nil {
 		return errors.Wrap(err, "init syncer error")
 	}

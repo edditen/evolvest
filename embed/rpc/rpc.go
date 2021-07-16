@@ -18,13 +18,13 @@ import (
 )
 
 type SyncServer struct {
-	conf   *config.Config
+	cfg    *config.Config
 	syncer *store.Syncer
 }
 
 func NewSyncServer(conf *config.Config, syncer *store.Syncer) *SyncServer {
 	return &SyncServer{
-		conf:   conf,
+		cfg:    conf,
 		syncer: syncer,
 	}
 }
@@ -34,7 +34,7 @@ func (es *SyncServer) Init() error {
 }
 
 func (es *SyncServer) Run() error {
-	addr := es.conf.Host + ":" + es.conf.SyncPort
+	addr := es.cfg.Host + ":" + es.cfg.SyncPort
 	log.Println("listen sync server at", addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
