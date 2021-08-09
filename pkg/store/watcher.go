@@ -13,19 +13,9 @@ type Watcher struct {
 	chMap map[string][]chan Notification
 }
 
-var watcher *Watcher
-
-func init() {
-	watcher = NewWatcher()
-}
-
-func GetWatcher() *Watcher {
-	return watcher
-}
-
 func NewWatcher() *Watcher {
 	return &Watcher{
-		chMap: make(map[string][]chan Notification),
+		chMap: make(map[string][]chan Notification, 0),
 	}
 }
 
@@ -43,10 +33,8 @@ func (w *Watcher) Add(key string, fn NotifyFunc) error {
 }
 
 func (w *Watcher) Notify(action string, key string, oldVal, newVal DataItem) error {
-
 	chans, ok := w.chMap[key]
 	if ok {
-
 		n := Notification{
 			action: action,
 			key:    key,

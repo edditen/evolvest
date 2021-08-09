@@ -1,8 +1,8 @@
 package server
 
 import (
+	"github.com/EdgarTeng/etlog"
 	"github.com/EdgarTeng/evolvest/pkg/common"
-	"github.com/EdgarTeng/evolvest/pkg/common/logger"
 	"github.com/EdgarTeng/evolvest/pkg/common/utils"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"sync"
@@ -10,17 +10,17 @@ import (
 
 type CmdHandler struct {
 	itemsMux sync.RWMutex
-	store    store.Store
+	syncer   *store.Syncer
 }
 
-func NewHandler() *CmdHandler {
+func NewHandler(syncer *store.Syncer) *CmdHandler {
 	return &CmdHandler{
-		store: store.GetStore(),
+		syncer: syncer,
 	}
 }
 
 func (h *CmdHandler) detach(conn Conn, cmd Command) {
-	log := logger.WithField("cmd", cmd.Args[0])
+	log := etlog.Log.WithField("cmd", cmd.Args[0])
 	detachedConn := conn.Detach()
 	log.Info("connection has been detached")
 	go func(c DetachedConn) {
@@ -47,7 +47,7 @@ func (h *CmdHandler) set(conn Conn, cmd Command) {
 	}
 
 	h.itemsMux.Lock()
-	store.Submit(&common.TxRequest{
+	h.syncer.Submit(&common.TxRequest{
 		TxId:   utils.GenerateId(),
 		Flag:   common.FlagReq,
 		Action: common.SET,
@@ -66,7 +66,7 @@ func (h *CmdHandler) get(conn Conn, cmd Command) {
 	}
 
 	h.itemsMux.RLock()
-	val, err := h.store.Get(string(cmd.Args[1]))
+	val, err := h.syncer.Store.Get(string(cmd.Args[1]))
 	h.itemsMux.RUnlock()
 
 	if err != nil {
@@ -83,7 +83,7 @@ func (h *CmdHandler) delete(conn Conn, cmd Command) {
 	}
 
 	h.itemsMux.Lock()
-	store.Submit(&common.TxRequest{
+	h.syncer.Submit(&common.TxRequest{
 		TxId:   utils.GenerateId(),
 		Flag:   common.FlagReq,
 		Action: common.DEL,

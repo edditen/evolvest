@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/EdgarTeng/evolvest/pkg/common/logger"
+	"github.com/EdgarTeng/etlog"
 	"github.com/tidwall/btree"
 	"github.com/tidwall/match"
 	"io"
@@ -617,7 +617,7 @@ func NewServeMux() *ServeMux {
 	}
 }
 
-// A CmdHandler responds to an RESP request.
+// Handler responds to an RESP request.
 type Handler interface {
 	ServeRESP(conn Conn, cmd Command)
 }
@@ -631,7 +631,7 @@ func NewAccessLogHandler(next Handler) *AccessLogHandler {
 }
 
 func (h *AccessLogHandler) ServeRESP(conn Conn, cmd Command) {
-	log := logger.WithField("cmd", cmd.String())
+	log := etlog.Log.WithField("cmd", cmd.String())
 	start := time.Now()
 	h.next.ServeRESP(conn, cmd)
 	duration := time.Since(start)

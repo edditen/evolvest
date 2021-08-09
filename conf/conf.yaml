@@ -1,4 +1,5 @@
+host: "0.0.0.0"
 server_port: 8762
 sync_port: 8763
 admin_port: 8080
-data_dir: ./data
+data_dir: "./data"

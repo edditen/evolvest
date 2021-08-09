@@ -3,54 +3,57 @@ package rpc
 import (
 	"context"
 	"encoding/json"
+	"github.com/EdgarTeng/etlog"
 	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
 	"github.com/EdgarTeng/evolvest/pkg/common"
-	"github.com/EdgarTeng/evolvest/pkg/common/logger"
+	"github.com/EdgarTeng/evolvest/pkg/common/config"
 	"github.com/EdgarTeng/evolvest/pkg/common/utils"
 	"github.com/EdgarTeng/evolvest/pkg/store"
 	"google.golang.org/grpc"
+	"log"
 	"net"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-var evolvestServer *EvolvestServer
-
-func init() {
-	evolvestServer = NewEvolvestServer()
+type SyncServer struct {
+	cfg    *config.Config
+	syncer *store.Syncer
 }
 
-func GetEvolvestServer() *EvolvestServer {
-	return evolvestServer
-}
-
-type EvolvestServer struct {
-	store store.Store
-}
-
-func NewEvolvestServer() *EvolvestServer {
-	return &EvolvestServer{
-		store: store.GetStore(),
+func NewSyncServer(conf *config.Config, syncer *store.Syncer) *SyncServer {
+	return &SyncServer{
+		cfg:    conf,
+		syncer: syncer,
 	}
 }
 
-func StartServer(port string) error {
+func (es *SyncServer) Init() error {
+	return nil
+}
 
-	lis, err := net.Listen("tcp", port)
+func (es *SyncServer) Run() error {
+	addr := es.cfg.Host + ":" + es.cfg.SyncPort
+	log.Println("listen sync server at", addr)
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
 
 	srv := grpc.NewServer()
-	evolvest.RegisterEvolvestServiceServer(srv, GetEvolvestServer())
+	evolvest.RegisterEvolvestServiceServer(srv, es)
 
-	logger.Fatal("%v", srv.Serve(lis))
+	err = srv.Serve(lis)
+	etlog.Log.WithError(err).Fatal("serve failed")
 	return nil
 }
 
-func (e *EvolvestServer) Keys(ctx context.Context, request *evolvest.KeysRequest) (*evolvest.KeysResponse, error) {
-	log := logger.WithField("ctx", ctx).WithField("params", request)
+func (es *SyncServer) Shutdown() {
+}
+
+func (es *SyncServer) Keys(ctx context.Context, request *evolvest.KeysRequest) (*evolvest.KeysResponse, error) {
+	log := etlog.Log.WithField("ctx", ctx).WithField("params", request)
 	pattern := request.GetPattern()
 	r, err := regexp.Compile(pattern)
 	if err != nil {
@@ -58,7 +61,7 @@ func (e *EvolvestServer) Keys(ctx context.Context, request *evolvest.KeysRequest
 		return nil, err
 	}
 
-	allKeys, err := e.store.Keys()
+	allKeys, err := es.syncer.Store.Keys()
 	log.WithField("keys", allKeys).WithError(err).Debug("request keys")
 	if err != nil {
 		log.WithError(err).Warn("request keys")
@@ -77,16 +80,16 @@ func (e *EvolvestServer) Keys(ctx context.Context, request *evolvest.KeysRequest
 	}, nil
 }
 
-func (e *EvolvestServer) Pull(ctx context.Context, request *evolvest.PullRequest) (*evolvest.PullResponse, error) {
-	log := logger.WithField("ctx", ctx).WithField("params", request)
-	keys, err := e.store.Keys()
+func (es *SyncServer) Pull(ctx context.Context, request *evolvest.PullRequest) (*evolvest.PullResponse, error) {
+	log := etlog.Log.WithField("ctx", ctx).WithField("params", request)
+	keys, err := es.syncer.Store.Keys()
 
 	if err != nil {
 		log.WithError(err).Warn("get keys error")
 		return nil, err
 	}
 
-	values, err := valuesByKeys(keys, e.store)
+	values, err := valuesByKeys(keys, es.syncer.Store)
 	if err != nil {
 		log.WithError(err).Warn("get values error")
 		return nil, err
@@ -116,12 +119,12 @@ func valuesByKeys(keys []string, s store.Store) (vals map[string]store.DataItem,
 	return vals, nil
 }
 
-func (e *EvolvestServer) Push(ctx context.Context, request *evolvest.PushRequest) (*evolvest.PushResponse, error) {
-	logger.WithField("ctx", ctx).WithField("params", request).
+func (es *SyncServer) Push(ctx context.Context, request *evolvest.PushRequest) (*evolvest.PushResponse, error) {
+	etlog.Log.WithField("ctx", ctx).WithField("params", request).
 		Debug("request push")
 	for _, req := range request.TxCmds {
 		if txReq := parseCmd(req); txReq != nil {
-			store.Submit(txReq)
+			es.syncer.Submit(txReq)
 		}
 	}
 	return &evolvest.PushResponse{
@@ -130,7 +133,7 @@ func (e *EvolvestServer) Push(ctx context.Context, request *evolvest.PushRequest
 }
 
 func parseCmd(cmdText string) *common.TxRequest {
-	log := logger.WithField("cmdText", cmdText)
+	log := etlog.Log.WithField("cmdText", cmdText)
 	texts := strings.Fields(strings.TrimSpace(cmdText))
 	if len(texts) < 4 {
 		log.Warn("parse cmd error, missing required")

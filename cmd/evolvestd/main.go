@@ -1,72 +1,39 @@
 package main
 
 import (
-	"flag"
-	"github.com/EdgarTeng/evolvest/embed/rpc"
-	"github.com/EdgarTeng/evolvest/embed/server"
-	"github.com/EdgarTeng/evolvest/pkg/common/config"
-	"github.com/EdgarTeng/evolvest/pkg/common/logger"
-	"github.com/EdgarTeng/evolvest/pkg/common/utils"
-	"github.com/EdgarTeng/evolvest/pkg/store"
-)
-
-var (
-	configFile string
-	verbose    bool
+	"github.com/EdgarTeng/evolvest/cmd/evolvestd/command"
+	"github.com/EdgarTeng/evolvest/pkg/rootcmd"
+	"github.com/spf13/cobra"
+	"log"
 )
 
 func main() {
-	parseArgs()
-	prepare()
-	startServer()
-}
+	cmd := rootcmd.InitRootCommand(
+		"evolvestd server",
+		"evolvestd server wiki: TODO.",
+	)
 
-func parseArgs() {
-	flag.StringVar(&configFile, "c", "./conf/config.yaml", "config file")
-	flag.BoolVar(&verbose, "v", false, "verbose")
-	flag.Parse()
-	return
-}
+	cmd.AddCommand(GetServeCommand())
 
-func prepare() {
-	logger.SetVerbose(verbose)
-	//init config
-	if err := config.InitConfig(configFile); err != nil {
-		logger.Fatal("init config failed, %v", err)
+	if err := cmd.Execute(); err != nil {
+		log.Fatalf("cmd execute error: %+v\n", err)
 	}
-	if cfg, err := config.PrintConfig(); err != nil {
-		logger.Warn("config info error, %v", err)
-	} else {
-		logger.Info("show config, %s", cfg)
-	}
-	store.InitSyncUp()
-
 }
 
-func startServer() {
+func GetServeCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "server",
+		Short: "Run a service",
+		Run: func(cmd *cobra.Command, args []string) {
+			server := command.NewEvolvestd()
+			if err := server.Init(); err != nil {
+				log.Fatalf("Init error: %+v\n", err)
+			}
+			if err := server.Run(); err != nil {
+				log.Fatalf("Run error: %+v\n", err)
+			}
+		},
+	}
 
-	// recover data from file
-	store.Recover()
-
-	syncPort := ":" + config.Config().SyncPort
-	logger.Info("Pull server running, on listen %s", syncPort)
-	go func() {
-		if err := rpc.StartServer(syncPort); err != nil {
-			logger.Fatal("init server failed, %v", err)
-		}
-	}()
-
-	// start server
-	serverPort := ":" + config.Config().ServerPort
-	logger.Info("Server running, on listen %s", serverPort)
-	go func() {
-		if err := server.StartServer(serverPort); err != nil {
-			logger.Fatal("init server failed, %v", err)
-		}
-	}()
-
-	logger.Info("Server started!")
-	utils.WaitSignal(store.Persistent)
-	logger.Info("Bye!")
-
+	return cmd
 }
