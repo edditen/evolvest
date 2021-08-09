@@ -1,10 +1,10 @@
-module github.com/EdgarTeng/evolvest
+module github.com/edditen/evolvest
 
-go 1.14
+go 1.16
 
 require (
-	github.com/EdgarTeng/etlog v1.2.1
 	github.com/c-bata/go-prompt v0.2.5
+	github.com/edditen/etlog v1.3.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1

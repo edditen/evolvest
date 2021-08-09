@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/EdgarTeng/etlog"
+	"github.com/edditen/etlog"
 	"github.com/tidwall/btree"
 	"github.com/tidwall/match"
 	"io"

@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/EdgarTeng/evolvest/cmd/evolvestcli/client"
-	ecli "github.com/EdgarTeng/evolvest/cmd/evolvestcli/completer"
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
+	"github.com/edditen/evolvest/cmd/evolvestcli/client"
+	ecli "github.com/edditen/evolvest/cmd/evolvestcli/completer"
 	"log"
 )
 

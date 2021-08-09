@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/EdgarTeng/evolvest/cmd/evolvestd/command"
-	"github.com/EdgarTeng/evolvest/pkg/rootcmd"
+	"github.com/edditen/evolvest/cmd/evolvestd/command"
+	"github.com/edditen/evolvest/pkg/rootcmd"
 	"github.com/spf13/cobra"
 	"log"
 )

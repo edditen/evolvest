@@ -3,9 +3,9 @@ package server
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/EdgarTeng/etlog"
-	"github.com/EdgarTeng/evolvest/pkg/common/config"
-	"github.com/EdgarTeng/evolvest/pkg/store"
+	"github.com/edditen/etlog"
+	"github.com/edditen/evolvest/pkg/common/config"
+	"github.com/edditen/evolvest/pkg/store"
 	"io"
 	"log"
 	"net"

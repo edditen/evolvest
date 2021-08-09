@@ -2,8 +2,8 @@ package store
 
 import (
 	"errors"
-	"github.com/EdgarTeng/evolvest/pkg/common"
-	"github.com/EdgarTeng/evolvest/pkg/common/config"
+	"github.com/edditen/evolvest/pkg/common"
+	"github.com/edditen/evolvest/pkg/common/config"
 )
 
 type Syncer struct {

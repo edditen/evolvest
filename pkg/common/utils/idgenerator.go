@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"github.com/EdgarTeng/etlog"
-	"github.com/EdgarTeng/evolvest/pkg/common"
+	"github.com/edditen/etlog"
+	"github.com/edditen/evolvest/pkg/common"
 	"os"
 	"strconv"
 	"sync/atomic"

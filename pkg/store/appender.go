@@ -2,11 +2,11 @@ package store
 
 import (
 	"fmt"
-	"github.com/EdgarTeng/etlog"
-	"github.com/EdgarTeng/evolvest/pkg/common"
-	"github.com/EdgarTeng/evolvest/pkg/common/config"
-	"github.com/EdgarTeng/evolvest/pkg/common/utils"
-	"github.com/EdgarTeng/evolvest/pkg/runnable"
+	"github.com/edditen/etlog"
+	"github.com/edditen/evolvest/pkg/common"
+	"github.com/edditen/evolvest/pkg/common/config"
+	"github.com/edditen/evolvest/pkg/common/utils"
+	"github.com/edditen/evolvest/pkg/runnable"
 	"github.com/pkg/errors"
 	"os"
 	"path"

@@ -2,8 +2,8 @@ package completer
 
 import (
 	"fmt"
-	"github.com/EdgarTeng/evolvest/cmd/evolvestcli/client"
 	"github.com/c-bata/go-prompt"
+	"github.com/edditen/evolvest/cmd/evolvestcli/client"
 	"strings"
 )
 

@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/EdgarTeng/evolvest/api/pb/evolvest"
+	"github.com/edditen/evolvest/api/pb/evolvest"
 	"google.golang.org/grpc"
 	"time"
 )

@@ -1,10 +1,10 @@
 package server
 
 import (
-	"github.com/EdgarTeng/etlog"
-	"github.com/EdgarTeng/evolvest/pkg/common"
-	"github.com/EdgarTeng/evolvest/pkg/common/utils"
-	"github.com/EdgarTeng/evolvest/pkg/store"
+	"github.com/edditen/etlog"
+	"github.com/edditen/evolvest/pkg/common"
+	"github.com/edditen/evolvest/pkg/common/utils"
+	"github.com/edditen/evolvest/pkg/store"
 	"sync"
 )
 

@@ -1,11 +1,11 @@
 package command
 
 import (
-	"github.com/EdgarTeng/etlog"
-	"github.com/EdgarTeng/evolvest/embed/rpc"
-	"github.com/EdgarTeng/evolvest/embed/server"
-	"github.com/EdgarTeng/evolvest/pkg/common/config"
-	"github.com/EdgarTeng/evolvest/pkg/store"
+	"github.com/edditen/etlog"
+	"github.com/edditen/evolvest/embed/rpc"
+	"github.com/edditen/evolvest/embed/server"
+	"github.com/edditen/evolvest/pkg/common/config"
+	"github.com/edditen/evolvest/pkg/store"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"log"
