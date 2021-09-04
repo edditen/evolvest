@@ -11,8 +11,14 @@ make build
 bin/evolvestd -c conf/config.yaml
 ```
 
-2. start client:
+2. start client(support redis-cli):
 
 ```shell script
-bin/evolvestcli -a 127.0.0.1:8762
+redis-cli -p 8762
+```
+
+3. checking data via client:
+
+```shell script
+bin/evolvestcli -a 127.0.0.1:8763
 ```
