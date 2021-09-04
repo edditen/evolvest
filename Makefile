@@ -12,7 +12,7 @@ FILES := $(basename $(patsubst ./%,$(BUILD_PATH)/%,$(SRC_FILES)))
 # Example:
 #   make build
 #   make build GOFLAGS=-race
-build:$(FILES)
+build: clean $(FILES)
 
 $(TAGET):
 	make -B $(BUILD_PATH)/$@
@@ -25,7 +25,7 @@ clean:
 	rm -f $(FILES)
 
 .PHONY: run
-run:
+run: build
 	$(BUILD_PATH)/evolvestd server
 
 
@@ -53,15 +53,15 @@ docker-build:
 	@docker build -t tenchael.com/evolvestd .
 
 .PHONY: docker-run
-docker-run:
-	@docker run --name evolvestd -p 8762:8762 -p 8080:8080 tenchael.com/evolvestd
+docker-run: docker-build
+	@docker run --name evolvestd -p 8762:8762 -p 8080:8080 tenchael.com/evolvestd server
 
 
 .PHONY: docker-clean
 docker-clean:
-	@docker images -a | egrep  "evolvestd|<none>" | awk '{print $3}'
+	docker images -a | egrep  "evolvestd|<none>" | awk '{print $3}'
 	./scripts/clean_docker.sh
-	# docker rmi -f $(docker images -a | egrep  "evolvestd|<none>" | awk '{print $3}')
+	#docker rmi -f $(docker images -a | egrep  "evolvestd|<none>" | awk '{print $3}')
 
 .PHONY: docker-logs
 docker-logs:
@@ -69,7 +69,7 @@ docker-logs:
 
 .PHONY: up
 up:
-	@docker-compose up --build -d
+	@docker-compose up --build
 
 .PHONY: down
 down:

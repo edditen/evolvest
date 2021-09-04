@@ -1,4 +1,4 @@
-FROM golang:1.14.3-alpine as builder
+FROM golang:1.16 as builder
 LABEL maintainer="tzz1002@gmail.com"
 ENV GO111MODULE=on
 WORKDIR /app
@@ -13,4 +13,4 @@ WORKDIR /app
 ADD conf conf
 COPY --from=builder /app/evolvestd .
 EXPOSE 8762 8080
-ENTRYPOINT ["./evolvestd", "-c", "conf/config.yaml", "-v"]
+ENTRYPOINT ["./evolvestd", "server", "-c", "conf/conf.yaml"]
