@@ -5,6 +5,7 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	"log"
 )
 
 type Config struct {
@@ -23,6 +24,7 @@ func NewConfig(configFile string) *Config {
 }
 
 func (c *Config) Init() error {
+	log.Println("[Init] init config")
 	yamlFile, err := ioutil.ReadFile(c.configFile)
 	if err != nil {
 		return errors.Wrap(err, "init config: read file error")
@@ -37,19 +39,21 @@ func (c *Config) Init() error {
 	return nil
 }
 
-func (c *Config) Run() error {
-	return nil
+func (c *Config) Run(errC chan<- error) {
+	log.Println("[Run] run config")
 }
 
 func (c *Config) Shutdown() {
-	return
+	log.Println("[Shutdown] shutdown config")
 }
 
 func (c *Config) Print() {
-	fmt.Println("config_file", c.configFile)
+	fmt.Println("~~~~~~~~~~~~~~")
+	fmt.Println("config_file:", c.configFile)
 	fmt.Println("host:", c.Host)
 	fmt.Println("server_port:", c.ServerPort)
 	fmt.Println("admin_port:", c.AdminPort)
 	fmt.Println("sync_port:", c.SyncPort)
 	fmt.Println("data_dir:", c.DataDir)
+	fmt.Println("~~~~~~~~~~~~~~")
 }

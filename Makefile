@@ -3,11 +3,11 @@ SHELL=/bin/bash
 SRC_PATH = cmd
 CFG_FILE = conf/config.yaml
 BUILD_PATH = bin
-SRC_FILES := $(shell cd $(SRC_PATH); find . -maxdepth 1 -type d|grep -v '/common')
+SRC_FILES := $(shell cd $(SRC_PATH); find . -maxdepth 1 -type d)
 TAGET := $(basename $(patsubst ./%,%,$(SRC_FILES)))
 FILES := $(basename $(patsubst ./%,$(BUILD_PATH)/%,$(SRC_FILES)))
 
-.PHONY: build $(TAGET) test-integration
+.PHONY: build $(TAGET)
 
 # Example:
 #   make build
@@ -18,7 +18,7 @@ $(TAGET):
 	make -B $(BUILD_PATH)/$@
 
 $(BUILD_PATH)/%: $(SRC_PATH)/%
-	./scripts/build_script.sh $@ ./$^
+	./scripts/build.sh $@ ./$^
 
 .PHONY: clean
 clean:

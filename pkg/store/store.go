@@ -8,6 +8,7 @@ import (
 	"github.com/edditen/evolvest/pkg/common/config"
 	"github.com/edditen/evolvest/pkg/runnable"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 )
@@ -48,11 +49,12 @@ func NewStorage(conf *config.Config) *Storage {
 }
 
 func (s *Storage) Init() error {
+	log.Println("[Init] init storage")
 	return nil
 }
 
-func (s *Storage) Run() error {
-	return nil
+func (s *Storage) Run(errC chan<- error) {
+	log.Println("[Run] run storage")
 }
 
 func (s *Storage) Shutdown() {

@@ -30,26 +30,32 @@ func NewSyncServer(conf *config.Config, syncer *store.Syncer) *SyncServer {
 }
 
 func (es *SyncServer) Init() error {
+	log.Println("[Init] init syncServer")
 	return nil
 }
 
-func (es *SyncServer) Run() error {
+func (es *SyncServer) Run(errC chan<- error) {
+	log.Println("[Run] run syncServer")
 	addr := es.cfg.Host + ":" + es.cfg.SyncPort
 	log.Println("listen sync server at", addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		return err
+		errC <- err
+		return
 	}
 
 	srv := grpc.NewServer()
 	evolvest.RegisterEvolvestServiceServer(srv, es)
 
-	err = srv.Serve(lis)
-	etlog.Log.WithError(err).Fatal("serve failed")
-	return nil
+	if err = srv.Serve(lis); err != nil {
+		errC <- err
+		return
+	}
+
 }
 
 func (es *SyncServer) Shutdown() {
+	log.Println("[Shutdown] shutdown syncServer")
 }
 
 func (es *SyncServer) Keys(ctx context.Context, request *evolvest.KeysRequest) (*evolvest.KeysResponse, error) {

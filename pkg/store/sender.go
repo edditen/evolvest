@@ -10,6 +10,7 @@ import (
 	"github.com/edditen/evolvest/pkg/common/utils"
 	"github.com/edditen/evolvest/pkg/runnable"
 	"google.golang.org/grpc"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -34,6 +35,7 @@ func NewTxSender(cfg *config.Config) *TxSender {
 }
 
 func (ts *TxSender) Init() error {
+	log.Println("[Init] init txSender")
 	servAddrs := os.Getenv(common.EnvAddrs)
 	etlog.Log.WithField(common.EnvAddrs, servAddrs).Info("env")
 	if servAddrs != "" {
@@ -58,8 +60,8 @@ func (ts *TxSender) Send(req *common.TxRequest) error {
 	return nil
 }
 
-func (ts *TxSender) Run() error {
-	return nil
+func (ts *TxSender) Run(errC chan<- error) {
+	log.Println("[Run] run txSender")
 }
 
 func (ts *TxSender) Shutdown() {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/edditen/evolvest/pkg/common"
 	"github.com/edditen/evolvest/pkg/common/config"
+	"log"
 )
 
 type Syncer struct {
@@ -27,6 +28,7 @@ func NewSyncer(conf *config.Config) *Syncer {
 }
 
 func (s *Syncer) Init() error {
+	log.Println("[Init] init syncer")
 	if err := s.Store.Init(); err != nil {
 		return err
 	}
@@ -39,7 +41,13 @@ func (s *Syncer) Init() error {
 	return nil
 }
 
-func (s *Syncer) Run() error {
+func (s *Syncer) Run(errC chan<- error) {
+	log.Println("[Run] run syncer")
+
+	go s.Store.Run(errC)
+	go s.appender.Run(errC)
+	go s.sender.Run(errC)
+
 	defer close(s.reqC)
 	for {
 		select {
@@ -55,8 +63,6 @@ func (s *Syncer) Run() error {
 
 	}
 
-	return nil
-
 }
 
 func (s *Syncer) Shutdown() {
@@ -64,6 +70,7 @@ func (s *Syncer) Shutdown() {
 	s.appender.Shutdown()
 	s.Store.Shutdown()
 	close(s.shutdown)
+	log.Println("[Shutdown] shutdown syncer")
 }
 
 func (s *Syncer) Submit(req *common.TxRequest) error {

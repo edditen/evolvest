@@ -54,54 +54,32 @@ func (e *Evolvestd) Init() (err error) {
 	return nil
 }
 
-func (e *Evolvestd) Run() error {
-	errC := make(chan error)
-
-	go e.runConfig(errC)
-	go e.runSyncer(errC)
-	go e.runSyncServer(errC)
-	go e.runEvolvestServer(errC)
-
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt)
-		<-c
-		log.Println("Server received interrupt signal, prepare to clean.")
-		e.evolvestServer.Shutdown()
-		e.syncServer.Shutdown()
-		e.syncer.Shutdown()
-
-		log.Println("Server received interrupt signal, exit now.")
-		os.Exit(0)
-	}()
-
-	return <-errC
+func (e *Evolvestd) Run(errC chan<- error) {
+	go e.config.Run(errC)
+	go e.syncer.Run(errC)
+	go e.syncServer.Run(errC)
+	go e.evolvestServer.Run(errC)
 }
 
 func (e *Evolvestd) Shutdown() {
-	return
+	e.evolvestServer.Shutdown()
+	e.syncServer.Shutdown()
+	e.syncer.Shutdown()
+	e.config.Shutdown()
 }
 
-func (e *Evolvestd) runConfig(errC chan error) {
-	if err := e.config.Run(); err != nil {
-		errC <- errors.Wrap(err, "run config error")
-	}
-}
+func (e *Evolvestd) WaitSignal(errC <-chan error, hook func()) {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, os.Kill)
 
-func (e *Evolvestd) runSyncer(errC chan error) {
-	if err := e.syncer.Run(); err != nil {
-		errC <- errors.Wrap(err, "run syncer error")
-	}
-}
-
-func (e *Evolvestd) runSyncServer(errC chan error) {
-	if err := e.syncServer.Run(); err != nil {
-		errC <- errors.Wrap(err, "run syncServer error")
-	}
-}
-
-func (e *Evolvestd) runEvolvestServer(errC chan error) {
-	if err := e.evolvestServer.Run(); err != nil {
-		errC <- errors.Wrap(err, "run evolvestServer error")
+	select {
+	case <-c:
+		log.Println("Server received interrupt signal")
+		hook()
+		os.Exit(0)
+	case err := <-errC:
+		log.Printf("Server run error: %+v", err)
+		hook()
+		os.Exit(1)
 	}
 }

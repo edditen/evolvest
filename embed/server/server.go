@@ -364,10 +364,12 @@ func NewEvolvestServer(conf *config.Config, syncer *store.Syncer) *EvolvestServe
 }
 
 func (s *EvolvestServer) Init() error {
+	log.Println("[Init] init evolvestServer")
 	return nil
 }
 
-func (s *EvolvestServer) Run() error {
+func (s *EvolvestServer) Run(errC chan<- error) {
+	log.Println("[Run] run evolvestServer")
 	addr := s.cfg.Host + ":" + s.cfg.ServerPort
 	log.Println("listen server at", addr)
 
@@ -396,10 +398,11 @@ func (s *EvolvestServer) Run() error {
 		},
 	)
 	if err != nil {
-		return err
+		errC <- err
+		return
 	}
-	return nil
 }
 
 func (s *EvolvestServer) Shutdown() {
+	log.Println("[Shutdown] shutdown evolvestServer")
 }

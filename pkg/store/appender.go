@@ -8,6 +8,7 @@ import (
 	"github.com/edditen/evolvest/pkg/common/utils"
 	"github.com/edditen/evolvest/pkg/runnable"
 	"github.com/pkg/errors"
+	"log"
 	"os"
 	"path"
 )
@@ -31,6 +32,7 @@ func NewTxAppender(cfg *config.Config) *TxAppender {
 }
 
 func (ta *TxAppender) Init() error {
+	log.Println("[Init] init txAppender")
 	dataDir := ta.cfg.DataDir
 	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
 		return errors.Wrap(err, "init syncUp error")
@@ -45,8 +47,8 @@ func (ta *TxAppender) Init() error {
 	return nil
 }
 
-func (ta *TxAppender) Run() error {
-	return nil
+func (ta *TxAppender) Run(errC chan<- error) {
+	log.Println("[Run] run txAppender")
 }
 
 func (ta *TxAppender) Shutdown() {

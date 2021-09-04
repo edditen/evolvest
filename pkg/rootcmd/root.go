@@ -16,7 +16,6 @@ var (
 	flagConfigFile    string
 	flagEnv           string
 	flagLogConfigFile string
-	flagVersion       bool
 )
 
 // InitRootCommand set command description
@@ -39,12 +38,6 @@ func InitRootCommand(short, long string) *cobra.Command {
 
 	// root help function
 	rootCmd.RunE = func(cmd *cobra.Command, args []string) error {
-		// show version
-		if flagVersion {
-			cmd.Println(formatVersion())
-			return nil
-		}
-
 		return cmd.Help()
 	}
 
@@ -66,16 +59,6 @@ func InitRootCommand(short, long string) *cobra.Command {
 	if err := viper.BindPFlag("log-config", rootCmd.PersistentFlags().Lookup("log-config")); err != nil {
 		log.Println("[InitRootCommand],", err)
 		return nil
-	}
-
-	pFlags.BoolVarP(&flagVersion, "version", "v", true, "Prints version")
-	if err := viper.BindPFlag("version", rootCmd.PersistentFlags().Lookup("version")); err != nil {
-		log.Println("[InitRootCommand],", err)
-		return nil
-	}
-
-	if flagVersion {
-		log.Println("Print git version:", formatVersion())
 	}
 
 	return rootCmd

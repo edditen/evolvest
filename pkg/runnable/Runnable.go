@@ -2,6 +2,6 @@ package runnable
 
 type Runnable interface {
 	Init() error
-	Run() error
+	Run(errC chan<- error)
 	Shutdown()
 }

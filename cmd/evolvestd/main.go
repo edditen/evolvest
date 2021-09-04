@@ -25,13 +25,17 @@ func GetServeCommand() *cobra.Command {
 		Use:   "server",
 		Short: "Run a service",
 		Run: func(cmd *cobra.Command, args []string) {
-			server := command.NewEvolvestd()
-			if err := server.Init(); err != nil {
-				log.Fatalf("Init error: %+v\n", err)
+			evolvestd := command.NewEvolvestd()
+			if err := evolvestd.Init(); err != nil {
+				log.Fatalf("Init error: %+v", err)
 			}
-			if err := server.Run(); err != nil {
-				log.Fatalf("Run error: %+v\n", err)
-			}
+			errC := make(chan error)
+			evolvestd.Run(errC)
+			evolvestd.WaitSignal(errC, func() {
+				log.Println("prepare clean...")
+				evolvestd.Shutdown()
+				log.Println("clean finished")
+			})
 		},
 	}
 
